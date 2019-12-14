@@ -1,0 +1,25 @@
+plugins {
+    id 'application'
+    id 'org.beryx.jlink' version '2.16.4'
+}
+
+application {
+    mainClassName = 'motorscript.cli/nl.jochembroekhoff.motorscript.cli.Main'
+}
+
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+
+    launcher {
+        name = 'mosc'
+        jvmArgs = []
+    }
+
+    jpackage {
+        jpackageHome = '/usr/lib/jvm/java-14-openjdk-jpackage'
+
+        skipInstaller = true
+
+        jvmArgs = []
+    }
+}

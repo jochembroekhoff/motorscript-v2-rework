@@ -1,0 +1,53 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.60' apply false
+    id 'org.javamodularity.moduleplugin' version '1.6.0' apply false
+}
+
+group 'nl.jochembroekhoff.motorscript'
+version '1.0-SNAPSHOT'
+
+ext {
+    antlr_version = '4.7.2'
+    jackson_version = '2.10.1'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.javamodularity.moduleplugin'
+    apply plugin: 'org.jetbrains.kotlin.jvm'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url 'https://jitpack.io' }
+    }
+
+    dependencies {
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+        testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlin {
+        compileKotlin {
+            kotlinOptions.jvmTarget = '1.8'
+        }
+        compileTestKotlin {
+            kotlinOptions.jvmTarget = '1.8'
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+
+        filter {
+            exclude '**/module-info.class'
+        }
+    }
+}

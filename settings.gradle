@@ -1,0 +1,7 @@
+rootProject.name = 'motorscript'
+
+String[] subProjects = [
+        'cli'
+]
+
+include subProjects
