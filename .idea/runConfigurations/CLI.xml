@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CLI" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="nl.jochembroekhoff.motorscript.cli.Main" />
+    <module name="motorscript.cli.main" />
+    <option name="PROGRAM_PARAMETERS" value="--buildroot examples/basics --jobs 1" />
+    <option name="VM_PARAMETERS" value="-Dorg.slf4j.simpleLogger.defaultLogLevel=trace -Dvisualvm.display.name=&quot;MotorScriptCompiler&quot;" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

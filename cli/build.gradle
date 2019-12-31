@@ -3,12 +3,23 @@ plugins {
     id 'org.beryx.jlink' version '2.16.4'
 }
 
+dependencies {
+    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.2.0-dev-7'
+    implementation "org.slf4j:slf4j-simple:$slf4j_version"
+
+    implementation project(':buildmgr')
+}
+
 application {
     mainClassName = 'motorscript.cli/nl.jochembroekhoff.motorscript.cli.Main'
 }
 
 jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    // '--strip-debug', '--compress', '2'
+    options.set(['--no-header-files', '--no-man-pages'])
+
+    // TODO: Better way to enforce same version as targetCompatibility?
+    javaHome.set('/usr/lib/jvm/java-13-openjdk')
 
     launcher {
         name = 'mosc'
@@ -16,7 +27,7 @@ jlink {
     }
 
     jpackage {
-        jpackageHome = '/usr/lib/jvm/java-14-openjdk-jpackage'
+        jpackageHome = '/usr/lib/jvm/java-14-openjdk'
 
         skipInstaller = true
 

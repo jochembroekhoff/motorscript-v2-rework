@@ -1,0 +1,12 @@
+plugins {
+    id 'antlr'
+}
+
+dependencies {
+    antlr "org.antlr:antlr4:$antlr_version"
+}
+
+generateGrammarSource {
+    arguments += ['-visitor', '-no-listener']
+    arguments += ['-package', 'nl.jochembroekhoff.motorscript.lexparse']
+}

@@ -1,7 +1,14 @@
 rootProject.name = 'motorscript'
 
 String[] subProjects = [
-        'cli'
+        'buildmgr',
+        'cli',
+        'common',
+        'def',
+        'discover',
+        'front',
+        'gen',
+        'lexparse'
 ]
 
 include subProjects

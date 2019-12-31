@@ -1,0 +1,9 @@
+use text\tellraw
+
+/*
+ * /function basics:hello
+ */
+user func hello
+{
+    tellraw(@s, "Hello!")
+}

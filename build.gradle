@@ -1,6 +1,19 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-serialization:1.3.61"
+    }
+}
+
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.60' apply false
-    id 'org.javamodularity.moduleplugin' version '1.6.0' apply false
+    id 'org.jetbrains.kotlin.jvm' version '1.3.61' apply false
+    id 'org.javamodularity.moduleplugin' version '1.5.0' apply false
 }
 
 group 'nl.jochembroekhoff.motorscript'
@@ -9,29 +22,41 @@ version '1.0-SNAPSHOT'
 ext {
     antlr_version = '4.7.2'
     jackson_version = '2.10.1'
+    slf4j_version = '1.7.30'
+    kotlinLogging_version = '1.7.8'
+    kotlinxSerializationRuntime_version = '0.14.0'
 }
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'org.javamodularity.moduleplugin'
     apply plugin: 'org.jetbrains.kotlin.jvm'
+    apply plugin: 'kotlinx-serialization'
 
     repositories {
         mavenCentral()
         jcenter()
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url 'https://jitpack.io' }
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     }
 
     dependencies {
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+        implementation "org.slf4j:slf4j-api:$slf4j_version"
+        implementation "io.github.microutils:kotlin-logging:$kotlinLogging_version"
+        implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationRuntime_version"
 
-        testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
+        if (project.name != "common") {
+            implementation project(':common')
+        }
+
+        testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.4.2'
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_13
+        targetCompatibility = JavaVersion.VERSION_13
     }
 
     kotlin {
