@@ -1,6 +1,8 @@
 package nl.jochembroekhoff.motorscript.common.execution
 
-interface ExecutionUnit {
+import nl.jochembroekhoff.motorscript.common.result.Result
+
+interface ExecutionUnit<T> {
     /**
      * Execute this unit in the given [context].
      *
@@ -8,7 +10,7 @@ interface ExecutionUnit {
      * are created by this execution unit.
      *
      * @param context The [ExecutionContext] to use.
-     * @return True if the execution can continue. False indicates that there was at least some error.
+     * @return A result object indicating whether the whole unit executed successfully or if some part failed.
      */
-    fun executeInContext(context: ExecutionContext): Boolean
+    fun executeInContext(context: ExecutionContext): Result<T, Unit>
 }

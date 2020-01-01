@@ -5,13 +5,15 @@ import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
 import nl.jochembroekhoff.motorscript.common.extensions.supply
 import nl.jochembroekhoff.motorscript.common.pack.PackIndex
+import nl.jochembroekhoff.motorscript.common.result.Ok
+import nl.jochembroekhoff.motorscript.common.result.Result
 import java.util.concurrent.CompletableFuture
 
-class DiscoverExecutionUnit : ExecutionUnit {
+class DiscoverExecutionUnit : ExecutionUnit<PackIndex> {
 
     companion object : KLogging()
 
-    override fun executeInContext(context: ExecutionContext): Boolean {
+    override fun executeInContext(context: ExecutionContext): Result<PackIndex, Unit> {
         val sourceIndex = context.executor.supply {
             logger.debug { "Indexing sources (treating source root in pack format)..." }
             return@supply PackIndex.loadFrom(context.execution.sourceRoot)
@@ -26,6 +28,6 @@ class DiscoverExecutionUnit : ExecutionUnit {
 
         CompletableFuture.allOf(sourceIndex, *dependencyResolvers).get()
 
-        return true
+        return Ok(sourceIndex.get())
     }
 }

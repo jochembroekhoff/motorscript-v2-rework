@@ -12,6 +12,7 @@ import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.discover.DiscoverExecutionUnit
+import nl.jochembroekhoff.motorscript.lexparse.LexParseExecutionUnit
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.ExecutorService
@@ -53,7 +54,8 @@ object BuildManager : KLogging() {
 
         val executionContext = ExecutionContext(execution, executor)
 
-        val discoverOk = DiscoverExecutionUnit().executeInContext(executionContext)
-        logger.debug { "Discover OK: $discoverOk" }
+        val finalRes = DiscoverExecutionUnit().executeInContext(executionContext).then { discoverResult ->
+            LexParseExecutionUnit(discoverResult).executeInContext(executionContext)
+        }
     }
 }

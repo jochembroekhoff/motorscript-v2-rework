@@ -6,6 +6,7 @@ import nl.jochembroekhoff.motorscript.common.extensions.extension
 import nl.jochembroekhoff.motorscript.common.extensions.stem
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.stream.Stream
 
 class PackIndex {
     private val root: Map<NamespaceTypeCombo, Map<List<String>, PackEntry>>
@@ -18,6 +19,12 @@ class PackIndex {
         val new = HashMap<NamespaceTypeCombo, Map<List<String>, PackEntry>>()
         source.forEach { (k, v) -> new[k] = HashMap(v) }
         root = new
+    }
+
+    fun streamType(type: String): Stream<PackEntry> {
+        return root.entries.stream()
+            .filter { it.key.type == type }
+            .flatMap { it.value.values.stream() }
     }
 
     companion object : KLogging() {
@@ -43,7 +50,9 @@ class PackIndex {
                             .map { it.toString() }
                         val extension = f.extension
 
-                        return@map PackEntry(type, namespace, name, extension).also { logger.trace { "Pack entry: $it" } }
+                        return@map PackEntry(type, namespace, name, extension).also {
+                            logger.trace { "Pack entry: $it" }
+                        }
                     }
                     .forEach(builder::addEntry)
             }
