@@ -12,6 +12,7 @@ import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.discover.DiscoverExecutionUnit
+import nl.jochembroekhoff.motorscript.front.FrontExecutionUnit
 import nl.jochembroekhoff.motorscript.lexparse.LexParseExecutionUnit
 import java.nio.file.Files
 import java.nio.file.Path
@@ -56,10 +57,8 @@ object BuildManager : KLogging() {
 
         val finalRes = DiscoverExecutionUnit().executeInContext(executionContext).then { discoverResult ->
             LexParseExecutionUnit(discoverResult).executeInContext(executionContext)
-        }.withError {
-            logger.debug { "LexParse result ERROR" }
-        }.withOk {
-            logger.debug { "LexParse result OK" }
+        }.then { lexParseRes ->
+            FrontExecutionUnit(lexParseRes).executeInContext(executionContext)
         }
     }
 }

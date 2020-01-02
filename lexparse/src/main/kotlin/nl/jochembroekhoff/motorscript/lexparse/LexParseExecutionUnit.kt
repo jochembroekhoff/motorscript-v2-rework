@@ -4,6 +4,7 @@ import mu.KLogging
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
 import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
+import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.pack.PackIndex
 import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
@@ -14,11 +15,11 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.streams.asSequence
 
-class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<Unit> {
+class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<Map<PackEntry, MOSParser.ScriptContext>> {
 
     companion object : KLogging()
 
-    override fun executeInContext(context: ExecutionContext): Result<Unit, Unit> {
+    override fun executeInContext(context: ExecutionContext): Result<Map<PackEntry, MOSParser.ScriptContext>, Unit> {
         val anyFailed = AtomicBoolean(false)
 
         val futs = sourceIndex.streamType("mos").asSequence().associate { entry ->
@@ -64,7 +65,8 @@ class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<
         return if (anyFailed.get()) {
             Error(Unit)
         } else {
-            Ok(Unit)
+            // Results of the futures are known to be non-null, otherwise anyFailed would have been true
+            Ok(futs.mapValues { it.value.get()!! })
         }
     }
 }

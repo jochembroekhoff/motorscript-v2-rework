@@ -1,5 +1,6 @@
 plugins {
     id 'antlr'
+    id 'idea'
 }
 
 dependencies {
@@ -9,4 +10,10 @@ dependencies {
 generateGrammarSource {
     arguments += ['-visitor', '-no-listener']
     arguments += ['-package', 'nl.jochembroekhoff.motorscript.lexparse']
+}
+
+idea {
+    module {
+        sourceDirs += [file('src/main/antlr')]
+    }
 }

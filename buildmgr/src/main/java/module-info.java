@@ -7,5 +7,6 @@ module motorscript.buildmgr {
 
     requires motorscript.common;
     requires motorscript.discover;
+    requires motorscript.front;
     requires motorscript.lexparse;
 }
