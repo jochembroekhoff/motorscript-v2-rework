@@ -1,4 +1,4 @@
-package nl.jochembroekhoff.motorscript.common.extensions
+package nl.jochembroekhoff.motorscript.common.extensions.executorservice
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService

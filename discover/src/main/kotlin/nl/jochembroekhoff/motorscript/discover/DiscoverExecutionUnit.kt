@@ -3,7 +3,7 @@ package nl.jochembroekhoff.motorscript.discover
 import mu.KLogging
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
-import nl.jochembroekhoff.motorscript.common.extensions.supply
+import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
 import nl.jochembroekhoff.motorscript.common.pack.PackIndex
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result

@@ -50,12 +50,7 @@ object Main : KLogging() {
         val buildSpecFile = buildRoot.resolve("mosbuild.json")
         val sourceRoot = buildRoot.resolve("src")
 
-        val messagePipe = object : MessagePipe {
-            // TODO: Create MessagePipe that allows high parallel throughput, with buffer in ThreadLocal storage
-            override fun dispatch(message: Message) {
-                logger.trace { "Message: ${message.format()}" }
-            }
-        }
+        val messagePipe = ThreadLocalBufferingMessagePipe()
 
         when (val buildSpec = BuildManager.loadBuildSpec(buildSpecFile)) {
             is Error -> {
@@ -81,6 +76,10 @@ object Main : KLogging() {
                     }
                 }
             }
+        }
+
+        messagePipe.streamAll().forEach { message ->
+            println(message.format())
         }
     }
 }

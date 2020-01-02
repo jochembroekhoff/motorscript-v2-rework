@@ -1,9 +1,9 @@
 package nl.jochembroekhoff.motorscript.common.pack
 
 import mu.KLogging
-import nl.jochembroekhoff.motorscript.common.extensions.allNames
-import nl.jochembroekhoff.motorscript.common.extensions.extension
-import nl.jochembroekhoff.motorscript.common.extensions.stem
+import nl.jochembroekhoff.motorscript.common.extensions.path.allNames
+import nl.jochembroekhoff.motorscript.common.extensions.path.extension
+import nl.jochembroekhoff.motorscript.common.extensions.path.stem
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Stream
@@ -50,7 +50,9 @@ class PackIndex {
                             .map { it.toString() }
                         val extension = f.extension
 
-                        return@map PackEntry(type, namespace, name, extension).also {
+                        // TODO: Validate name.length >= 1
+
+                        return@map PackEntry(type, namespace, name.dropLast(1), name.last(), extension).also {
                             logger.trace { "Pack entry: $it" }
                         }
                     }

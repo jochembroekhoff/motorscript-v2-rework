@@ -56,6 +56,10 @@ object BuildManager : KLogging() {
 
         val finalRes = DiscoverExecutionUnit().executeInContext(executionContext).then { discoverResult ->
             LexParseExecutionUnit(discoverResult).executeInContext(executionContext)
+        }.withError {
+            logger.debug { "LexParse result ERROR" }
+        }.withOk {
+            logger.debug { "LexParse result OK" }
         }
     }
 }

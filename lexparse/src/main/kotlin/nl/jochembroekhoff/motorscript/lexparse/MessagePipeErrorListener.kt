@@ -1,0 +1,35 @@
+package nl.jochembroekhoff.motorscript.lexparse
+
+import nl.jochembroekhoff.motorscript.common.messages.MessagePipe
+import nl.jochembroekhoff.motorscript.common.messages.SourcePosition
+import nl.jochembroekhoff.motorscript.common.messages.SourceReferenceAttachment
+import org.antlr.v4.runtime.BaseErrorListener
+import org.antlr.v4.runtime.RecognitionException
+import org.antlr.v4.runtime.Recognizer
+import java.nio.file.Path
+
+class MessagePipeErrorListener(private val source: Path, private val messagePipe: MessagePipe) : BaseErrorListener() {
+
+    var errorCount = 0
+        private set
+
+    override fun syntaxError(
+        recognizer: Recognizer<*, *>?,
+        offendingSymbol: Any?,
+        line: Int,
+        charPositionInLine: Int,
+        msg: String?,
+        e: RecognitionException?
+    ) {
+        super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e)
+
+        errorCount++
+
+        messagePipe.dispatch(
+            Messages.syntaxError.new(
+                msg,
+                listOf(SourceReferenceAttachment(source, SourcePosition(line, charPositionInLine)))
+            )
+        )
+    }
+}
