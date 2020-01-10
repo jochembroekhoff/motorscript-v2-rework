@@ -17,15 +17,16 @@ script
     ;
 
 /**
- ** Section: identifier, path and keywords
+ ** Section: identifier, path and soft keywords
  **/
 
-keyword
+softKeyword
     : KwAlias
     | KwAlign
     | KwAnchored
     | KwAs
     | KwAt
+    | KwDefault
     | KwEnum
     | KwEyes
     | KwFacing
@@ -52,8 +53,8 @@ pathName
     ;
 
 identifier
-    : keyword
-    | Identifier
+    : Identifier
+    | softKeyword
     ;
 
 /*
@@ -100,14 +101,19 @@ expression
     | expression invocation
     | expression postfix
     |<assoc=right> prefix expression
+   // infix ops
     | expression ( arithmeticMulDivMod expression )+
     | expression ( arithmeticPlusMinus expression )+
-    | expression compare expression
-    | expression DotDot expression?
-    | rangeAndLower
     | expression ( AmpDouble expression )+
     | expression ( PipeDouble expression )+
+   // compare
+    | expression compare expression
+   // ranges
+    | expression DotDot expression?
+    | rangeAndLower
+   // assignment
     |<assoc=right> expression assign expression
+   // misc
     | literal
     | selector
     | resource
@@ -362,7 +368,8 @@ functionModifiers
     ;
 
 functionModifier
-    : KwIterator
+    : KwDefault
+    | KwIterator
     | KwPrivate
     | KwPublic
     | KwUser
@@ -749,6 +756,7 @@ KwAlign                 : 'align' ;
 KwAnchored              : 'anchored' ;
 KwAs                    : 'as' ;
 KwAt                    : 'at' ;
+KwDefault               : 'default' ;
 KwEnum                  : 'enum' ;
 KwEyes                  : 'eyes' ;
 KwFacing                : 'facing' ;

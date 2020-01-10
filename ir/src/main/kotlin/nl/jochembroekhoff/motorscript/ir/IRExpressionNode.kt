@@ -1,4 +1,4 @@
 package nl.jochembroekhoff.motorscript.ir
 
-object Placeholder {
+abstract class IRExpressionNode : IRNode() {
 }
