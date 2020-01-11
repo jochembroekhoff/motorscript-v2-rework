@@ -34,3 +34,10 @@ jlink {
         jvmArgs = []
     }
 }
+
+// TODO: Create mosc.AppDir with AppRun and mosc.desktop files
+task appImage(type: Exec, dependsOn: 'jpackage') {
+    description "Create an AppImage"
+    executable "/tmp/appimagetool-x86_64.appimage"
+    args "a", "b"
+}

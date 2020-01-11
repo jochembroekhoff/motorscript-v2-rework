@@ -50,15 +50,32 @@ object BuildManager : KLogging() {
         )
     }
 
-    fun runInExecutor(execution: Execution, executor: ExecutorService) {
+    /**
+     * Run an [execution] in an [executor].
+     * @return `true` if the entire operation was successful, `false` otherwise. Errors will be sent to the [MessagePipe]. that is attached to the [execution].
+     */
+    fun runInExecutor(execution: Execution, executor: ExecutorService): Boolean {
         logger.trace { "Starting execution in executor" }
 
         val executionContext = ExecutionContext(execution, executor)
 
-        val finalRes = DiscoverExecutionUnit().executeInContext(executionContext).then { discoverResult ->
+        val frontRes = DiscoverExecutionUnit().executeInContext(executionContext).then { discoverResult ->
             LexParseExecutionUnit(discoverResult).executeInContext(executionContext)
         }.then { lexParseRes ->
             FrontExecutionUnit(lexParseRes).executeInContext(executionContext)
         }
+
+        if (frontRes !is Ok) {
+            logger.debug { "Generic build execution part failed, see message pipe. Result: $frontRes" }
+            return false
+        }
+
+        logger.trace { "Generic build execution part completed successfully. Heading over to target-specific parts" }
+
+        execution.buildSpec.targets.forEach { target ->
+            logger.debug { "Processing target $target" }
+        }
+
+        return true
     }
 }

@@ -12,6 +12,8 @@ generateGrammarSource {
     arguments += ['-package', 'nl.jochembroekhoff.motorscript.lexparse']
 }
 
+compileJava.mustRunAfter(generateGrammarSource)
+
 idea {
     module {
         sourceDirs += [file('src/main/antlr')]
