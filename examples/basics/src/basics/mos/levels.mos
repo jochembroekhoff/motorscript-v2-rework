@@ -1,0 +1,14 @@
+use text\tellraw
+
+default user func levels
+{
+    if !@s[type = $player] return;
+    tellraw(@s, "Iterating over levels")
+    var xp = @s.xp.levels
+    for xp > 0
+    {
+        tellraw(@s, "Levels: ", xp)
+        xp--
+    }
+    tellraw(@s, "Done")
+}
