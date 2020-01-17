@@ -1,7 +1,7 @@
 use text\tellraw
 
 /*
- * /function basics:hello
+ * /function basics:user_funcs/hello
  */
 user func hello
 {

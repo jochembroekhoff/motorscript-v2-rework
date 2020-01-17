@@ -1,3 +1,5 @@
 package nl.jochembroekhoff.motorscript.ir.graph
 
-abstract class IREdge(internal val begin: IRVertex, internal val end: IRVertex)
+import org.jgrapht.graph.DefaultEdge
+
+class IREdge : DefaultEdge()

@@ -1,6 +1,3 @@
 dependencies {
-    implementation project(':ir')
-    implementation project(':lexparse')
-
     implementation "org.jgrapht:jgrapht-core:$jgrapht_version"
 }

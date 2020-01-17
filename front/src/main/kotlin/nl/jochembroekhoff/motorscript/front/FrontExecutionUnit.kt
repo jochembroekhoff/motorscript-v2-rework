@@ -7,28 +7,36 @@ import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
 import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
+import nl.jochembroekhoff.motorscript.front.visitor.FunctionVisitor
+import nl.jochembroekhoff.motorscript.ir.graph.IREdge
+import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 import nl.jochembroekhoff.motorscript.lexparse.SourceReferenceAttachmentTool
+import org.jgrapht.graph.SimpleDirectedGraph
 import java.util.concurrent.CompletableFuture
 
 class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptContext>) : ExecutionUnit<Unit> {
 
     companion object : KLogging()
 
-    override fun executeInContext(context: ExecutionContext): Result<Unit, Unit> {
+    override fun executeInContext(ectx: ExecutionContext): Result<Unit, Unit> {
         logger.debug { "Executing :front" }
 
         val futs = entries.map { (k, v) ->
-            context.executor.supply {
-                val source = k.file(context.execution.sourceRoot)
+            ectx.executor.supply {
+                val source = k.file(ectx.execution.sourceRoot)
+
                 v.topLevelItem().forEach { tli ->
                     tli.functionDeclaration()?.also { funcDecl ->
                         val funcName = funcDecl.identifier().text
-                        logger.info { "Processing func '$funcName'" }
+                        logger.debug { "Processing func '$funcName'" }
+                        val funcGraph = SimpleDirectedGraph<IRVertex, IREdge>(IREdge::class.java)
+                        val funcVisitor = FunctionVisitor(ectx, funcGraph)
+                        val entryPoint = funcVisitor.visitFunctionBody(funcDecl.functionBody())
                     }
 
                     tli.aliasDeclaration()?.also { aliasDecl ->
-                        context.execution.messagePipe.dispatch(
+                        ectx.execution.messagePipe.dispatch(
                             Messages.notImplemented.new(
                                 "Alias declarations are not implemented yet. The alias declaration is skipped.",
                                 listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, aliasDecl.start))
@@ -37,7 +45,7 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                     }
 
                     tli.typeSpecification()?.also { typeSpec ->
-                        context.execution.messagePipe.dispatch(
+                        ectx.execution.messagePipe.dispatch(
                             Messages.notImplemented.new(
                                 "Type specifications are not implemented yet. The type specification is skipped.",
                                 listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, typeSpec.start))
@@ -46,7 +54,7 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                     }
 
                     tli.declarationStatement()?.also { contDecl ->
-                        context.execution.messagePipe.dispatch(
+                        ectx.execution.messagePipe.dispatch(
                             Messages.notImplemented.new(
                                 "Top-level container declarations are not implemented yet. The container declaration is skipped.",
                                 listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, contDecl.start))

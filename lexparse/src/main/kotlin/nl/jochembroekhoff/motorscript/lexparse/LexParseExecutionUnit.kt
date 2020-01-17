@@ -19,12 +19,12 @@ class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<
 
     companion object : KLogging()
 
-    override fun executeInContext(context: ExecutionContext): Result<Map<PackEntry, MOSParser.ScriptContext>, Unit> {
+    override fun executeInContext(ectx: ExecutionContext): Result<Map<PackEntry, MOSParser.ScriptContext>, Unit> {
         val anyFailed = AtomicBoolean(false)
 
         val futs = sourceIndex.streamType("mos").asSequence().associate { entry ->
-            Pair(entry, context.executor.supply {
-                val file = entry.file(context.execution.sourceRoot)
+            Pair(entry, ectx.executor.supply {
+                val file = entry.file(ectx.execution.sourceRoot)
 
                 logger.trace { "Processing $file" }
 
@@ -43,7 +43,7 @@ class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<
                 // Prevent syntax errors from being logged to STDERR
                 parser.removeErrorListener(ConsoleErrorListener.INSTANCE)
 
-                val errorListener = MessagePipeErrorListener(file, context.execution.messagePipe)
+                val errorListener = MessagePipeErrorListener(file, ectx.execution.messagePipe)
                 parser.addErrorListener(errorListener)
 
                 try {

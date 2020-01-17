@@ -13,14 +13,14 @@ class DiscoverExecutionUnit : ExecutionUnit<PackIndex> {
 
     companion object : KLogging()
 
-    override fun executeInContext(context: ExecutionContext): Result<PackIndex, Unit> {
-        val sourceIndex = context.executor.supply {
+    override fun executeInContext(ectx: ExecutionContext): Result<PackIndex, Unit> {
+        val sourceIndex = ectx.executor.supply {
             logger.debug { "Indexing sources (treating source root in pack format)..." }
-            return@supply PackIndex.loadFrom(context.execution.sourceRoot)
+            return@supply PackIndex.loadFrom(ectx.execution.sourceRoot)
         }
 
-        val dependencyResolvers = context.execution.buildSpec.dependencies.map { dependency ->
-            context.executor.supply {
+        val dependencyResolvers = ectx.execution.buildSpec.dependencies.map { dependency ->
+            ectx.executor.supply {
                 logger.trace { "Resolving dependency ${dependency.format()}" }
                 // TODO: Implement
             }
