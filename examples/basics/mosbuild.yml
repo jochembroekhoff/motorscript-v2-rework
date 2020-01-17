@@ -2,6 +2,6 @@ name: basics
 version: 1.0.0
 description: "MotorScript example: basics"
 targets:
-  - java:1.15.1
+  - java:1.15.2
 dependencies:
   - stdlib

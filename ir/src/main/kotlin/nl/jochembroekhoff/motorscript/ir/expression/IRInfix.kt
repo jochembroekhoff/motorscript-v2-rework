@@ -1,8 +1,8 @@
 package nl.jochembroekhoff.motorscript.ir.expression
 
-import nl.jochembroekhoff.motorscript.ir.IRExpressionNode
+import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 
-class IRInfix : IRExpressionNode() {
+class IRInfix : IRExpressionVertex() {
     enum class Op(val repr: String) {
         MUL("*"),
         DIV("/"),

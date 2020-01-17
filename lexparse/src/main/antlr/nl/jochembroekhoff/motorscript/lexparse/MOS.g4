@@ -69,8 +69,8 @@ topLevelItem
     ;
 
 block
-    : statement
-    | AccL statement* AccR
+    : statement ColonSemi?
+    | AccL ( statement ColonSemi? )* AccR
     ;
 
 statement
