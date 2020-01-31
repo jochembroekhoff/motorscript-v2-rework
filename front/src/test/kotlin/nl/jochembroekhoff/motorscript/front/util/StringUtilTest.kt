@@ -1,40 +1,56 @@
 package nl.jochembroekhoff.motorscript.front.util
 
-import io.kotlintest.seconds
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.WordSpec
+import nl.jochembroekhoff.motorscript.common.result.Error
+import nl.jochembroekhoff.motorscript.common.result.Ok
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 
-class StringUtilTest : WordSpec({
-    TODO("implement")
-    "String.length" should {
-        "return the length of the string".config(timeout = 2.seconds) {
-            "sammy".length shouldBe 5
-            "sdf".length shouldBe 0
+class StringUtilTest {
+    @Nested
+    inner class Unescape {
+        @Nested
+        inner class Successes {
+            @Test
+            fun empty() {
+                assertEquals(Ok<String, String>(""), StringUtil.unescape(""))
+            }
+
+            @Nested
+            inner class NoEscapes {
+                @ParameterizedTest
+                @ValueSource(strings = ["hello bye", "Testing!?>?!"])
+                fun `return exact same value`(input: String) {
+                    assertEquals(Ok<String, String>(input), StringUtil.unescape(input))
+                }
+            }
+
+            @Nested
+            inner class Escaped {
+                @ParameterizedTest
+                @CsvSource(
+                    value = [
+                        "\\t, '\t'",
+                        "\\n, '\n'"
+                    ]
+                )
+                fun `single char`(input: String, output: String) {
+                    assertEquals(Ok<String, String>(output), StringUtil.unescape(input))
+                    assertEquals(1, (StringUtil.unescape(input) as Ok).value.length)
+                }
+            }
+        }
+
+        @Nested
+        inner class EscapeFailures {
+            @ParameterizedTest
+            @ValueSource(chars = ['b', 'r'])
+            fun `fail on unknown escape char`(c: Char) {
+                assertEquals(Error<String, String>("Cannot escape char '$c'"), StringUtil.unescape("\\$c"))
+            }
         }
     }
-    /*
-    test("unescape") {
-        test("successes") {
-            test("empty") {
-                StringUtil.unescape("") shouldBe Ok<String, String>("")
-            }
-            test("no escapes") {
-                test("hello bye") {
-                    StringUtil.unescape("hello bye") shouldBe Ok<String, String>("hello bye")
-                }
-                test("Testing!?>?!") {
-                    StringUtil.unescape("Testing!?>?!") shouldBe Ok<String, String>("Testing!?>?!")
-                }
-            }
-            test("escaped") {
-
-            }
-        }
-        test("escape failures") {
-            test("unknown char 'r'") {
-                StringUtil.unescape("\\r") shouldBe Error<String, String>("Cannot escape char 'r'")
-            }
-        }
-    }
-     */
-})
+}

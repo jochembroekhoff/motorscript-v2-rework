@@ -6,7 +6,7 @@ import nl.jochembroekhoff.motorscript.common.result.Result
 
 object StringUtil {
 
-    val NO_ESCAPE = Regex("[A-z0-9_\\-+]+")
+    val NO_ESCAPE = Regex("[A-Za-z0-9_\\-+]+")
 
     fun unqote(input: String): String {
         if (input.isEmpty()) {
@@ -42,7 +42,7 @@ object StringUtil {
         var inEscape = false
         chars.forEach { c ->
             if (inEscape) {
-                if (c != 't' && c != 'n' && c != '\\') {
+                if (c == 't' || c == 'n' || c == '\\') {
                     res[unescapedLength] = when (c) {
                         't' -> '\t'
                         'n' -> '\n'
