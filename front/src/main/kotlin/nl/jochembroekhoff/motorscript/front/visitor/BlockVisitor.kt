@@ -11,6 +11,6 @@ import org.jgrapht.Graph
 class BlockVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) : MOSExtendedVisitor<Pair<IRFlowVertex, IRVertex>>(ectx, g) {
     override fun visitBlock(ctx: MOSParser.BlockContext): Pair<IRFlowVertex, IRFlowVertex> {
         // TODO: Implement
-        return Pair(IRReturn(), IRReturn())
+        return Pair(gMkV { IRReturn() }, gMkV { IRReturn() })
     }
 }

@@ -1,5 +1,6 @@
 package nl.jochembroekhoff.motorscript.common.messages
 
-interface MessageAttachment {
+interface MessageAttachment : Attachable {
     fun toMessageString(): String
+    override fun toAttachment(): MessageAttachment = this
 }

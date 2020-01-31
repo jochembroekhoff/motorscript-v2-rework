@@ -21,7 +21,7 @@ abstract class MOSExtendedVisitor<T>(val ectx: ExecutionContext, val g: Graph<IR
         return e
     }
 
-    protected inline fun <T : IRVertex> gMkV(crossinline creator: () -> T): T {
+    protected inline fun <T : IRVertex> gMkV(creator: () -> T): T {
         return creator().also { g.addVertex(it) }
     }
 }

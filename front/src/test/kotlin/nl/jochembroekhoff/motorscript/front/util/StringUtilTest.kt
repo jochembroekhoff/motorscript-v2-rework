@@ -1,5 +1,6 @@
 package nl.jochembroekhoff.motorscript.front.util
 
+import nl.jochembroekhoff.motorscript.common.util.StringUtil
 import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import org.junit.jupiter.api.Assertions.assertEquals

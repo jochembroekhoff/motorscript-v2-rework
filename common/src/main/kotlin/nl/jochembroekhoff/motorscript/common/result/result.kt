@@ -1,5 +1,9 @@
 package nl.jochembroekhoff.motorscript.common.result
 
+import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
+import nl.jochembroekhoff.motorscript.common.messages.Attachable
+import nl.jochembroekhoff.motorscript.common.messages.ErrorAttachment
+
 sealed class Result<R, E> {
     /**
      * Chain an operation to be executed if the current [Result] is [Ok].
@@ -52,8 +56,28 @@ sealed class Result<R, E> {
         }
         return this
     }
+
+    /**
+     * Expect the [Result] to be [Ok] and unwrap its value.
+     * If not [Ok] (i.e. if [Error]), an [InternalAssertionExecutionException] is thrown with containing the description
+     * given in [unexpected] as error text.
+     *
+     * @param unexpected Brief description of how the value was unexpectedm, e.g. "invalid string literal".
+     */
+    fun expect(unexpected: String): R {
+        when (this) {
+            is Ok -> return value
+            is Error -> {
+                throw InternalAssertionExecutionException("Unexpected $unexpected", listOf(this))
+            }
+        }
+    }
 }
 
 data class Ok<R, E>(val value: R) : Result<R, E>()
 
-data class Error<R, E>(val value: E) : Result<R, E>()
+data class Error<R, E>(val value: E) : Result<R, E>(), Attachable {
+    override fun toAttachment(): ErrorAttachment {
+        return ErrorAttachment(this)
+    }
+}
