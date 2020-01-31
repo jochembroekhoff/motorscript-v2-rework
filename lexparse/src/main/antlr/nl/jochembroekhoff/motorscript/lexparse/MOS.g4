@@ -172,7 +172,7 @@ find
 
 findPath
     : Dot identifier
-    | Dot String
+    | Dot literalString
     ;
 
 findIndex
@@ -669,13 +669,8 @@ StringEscapeSequence
     ;
 
 String
-    : '"' ( ~'"' | '\\"' | StringEscapeSequence )* '"'
-    | '\'' ( ~'\'' | '\\\'' | StringEscapeSequence )* '\''
-    ;
-
-fragment
-EscapeSequence
-    : '\\' [btnfr"'\\]
+    : '"' ( ~[\\"] | '\\"' | StringEscapeSequence )* '"'
+    | '\'' ( ~[\\'] | '\\\'' | StringEscapeSequence )* '\''
     ;
 
 // Numeric literals

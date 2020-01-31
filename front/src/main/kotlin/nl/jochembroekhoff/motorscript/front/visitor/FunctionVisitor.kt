@@ -10,17 +10,20 @@ import org.jgrapht.Graph
 
 class FunctionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) : MOSExtendedVisitor<IREntry>(ectx, g) {
     override fun visitFunctionBody(ctx: MOSParser.FunctionBodyContext): IREntry {
-        val entryPoint = IREntry()
-        g.addVertex(entryPoint)
+        val entryPoint = gMkV { IREntry() }
 
         ctx.expressionStatement()?.also { exprStmtCtx ->
-            val retStmt = IRReturn()
-            g.addVertex(retStmt)
-            // TODO: Add edge between retStmt and entryPoint, but which direction?
+            val retStmt = gMkV { IRReturn() }
+            g.addEdge(entryPoint, retStmt)
+            val exprVisitor = ExpressionVisitor(ectx, g)
+            val expr = exprVisitor.visitExpression(exprStmtCtx.expression())
+            retStmt.gDependOn(expr)
         }
 
         ctx.block()?.also { blockCtx ->
-            // TODO: Process block
+            val blockVisitor = BlockVisitor(ectx, g)
+            val (blockEntry, blockExit) = blockVisitor.visitBlock(blockCtx)
+            entryPoint.gFollowedBy(blockEntry)
         }
 
         return entryPoint

@@ -20,7 +20,7 @@ group 'nl.jochembroekhoff.motorscript'
 version '1.0-SNAPSHOT'
 
 ext {
-    antlr_version = '4.7.2'
+    antlr_version = '4.8-1'
     jackson_version = '2.10.1'
     jgrapht_version = '1.3.1'
     slf4j_version = '1.7.30'
