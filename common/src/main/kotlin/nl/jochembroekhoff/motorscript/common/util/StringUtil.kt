@@ -31,8 +31,6 @@ object StringUtil {
     }
 
     fun unescape(input: String): Result<String, String> {
-        return Error("haha bier")
-
         if (input.matches(NO_ESCAPE)) {
             return Ok(input)
         }
