@@ -1,6 +1,7 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
+import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
 import nl.jochembroekhoff.motorscript.common.extensions.collections.whenNotEmpty
 import nl.jochembroekhoff.motorscript.ir.expression.IRFind
 import nl.jochembroekhoff.motorscript.ir.expression.IRLiteralString
@@ -51,6 +52,75 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
             return curr
         }
 
+        ctx.invocation()?.also { ivkCtx ->
+            throw FeatureUnimplementedExecutionException("Method invocation is not implemented yet.")
+        }
+
+        ctx.position()?.also { postfixCtx ->
+            throw FeatureUnimplementedExecutionException("Postfix operations are not implemented yet.")
+        }
+
+        ctx.prefix()?.also { prefixCtx ->
+            throw FeatureUnimplementedExecutionException("Prefix/unary operations are not implemented yet.")
+        }
+
+        ctx.compare()?.also { compCtx ->
+            throw FeatureUnimplementedExecutionException("Comparision operations are not implemented yet.")
+        }
+
+        ctx.DotDot()?.also {
+            throw FeatureUnimplementedExecutionException("Ranges are not implemented yet.")
+        }
+
+        ctx.rangeAndLower()?.also { rangeAndLowerCtx ->
+            throw FeatureUnimplementedExecutionException("Ranges are not implemented yet.")
+        }
+
+        ctx.assign()?.also { assignCtx ->
+            throw FeatureUnimplementedExecutionException("Assignment is not implemented yet.")
+        }
+
         return visitChildren(ctx)
+    }
+
+    override fun visitLiteral(ctx: MOSParser.LiteralContext): IRExpressionVertex {
+        val literalVisitor = LiteralVisitor(ectx, g)
+        return literalVisitor.visit(ctx)
+    }
+
+    override fun visitSelector(ctx: MOSParser.SelectorContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("Selectors are not implemented yet.")
+    }
+
+    override fun visitResource(ctx: MOSParser.ResourceContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("Resources are not implemented yet.")
+    }
+
+    override fun visitTag(ctx: MOSParser.TagContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("Tags are not implemented yet.")
+    }
+
+    override fun visitNbt(ctx: MOSParser.NbtContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("NBT expressions are not implemented yet.")
+    }
+
+    override fun visitPosition(ctx: MOSParser.PositionContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("Positions are not implemented yet.")
+    }
+
+    override fun visitVector(ctx: MOSParser.VectorContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("Vectors are not implemented yet.")
+    }
+
+    override fun visitIdentifier(ctx: MOSParser.IdentifierContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("Identifier references are not implemented yet.")
+    }
+
+    override fun visitPath(ctx: MOSParser.PathContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("Path references are not implemented yet.")
+    }
+
+    override fun visitTypeEnumReference(ctx: MOSParser.TypeEnumReferenceContext): IRExpressionVertex {
+        throw FeatureUnimplementedExecutionException("Enum type references are not implemented yet.")
     }
 }

@@ -8,5 +8,5 @@ module motorscript.lexparse {
 
     requires motorscript.common;
 
-    requires org.antlr.antlr4.runtime;
+    requires transitive org.antlr.antlr4.runtime;
 }

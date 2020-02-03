@@ -4,9 +4,3 @@ dependencies {
 
     implementation "org.jgrapht:jgrapht-core:$jgrapht_version"
 }
-
-test {
-    moduleOptions {
-        runOnClasspath = true
-    }
-}
