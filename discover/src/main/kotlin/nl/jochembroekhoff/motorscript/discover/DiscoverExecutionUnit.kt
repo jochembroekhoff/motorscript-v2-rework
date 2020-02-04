@@ -9,7 +9,7 @@ import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 import java.util.concurrent.CompletableFuture
 
-class DiscoverExecutionUnit : ExecutionUnit<PackIndex> {
+class DiscoverExecutionUnit : ExecutionUnit<PackIndex>() {
 
     companion object : KLogging()
 

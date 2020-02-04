@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.streams.asSequence
 
-class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<Map<PackEntry, MOSParser.ScriptContext>> {
+class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<Map<PackEntry, MOSParser.ScriptContext>>() {
 
     companion object : KLogging()
 

@@ -3,7 +3,6 @@ package nl.jochembroekhoff.motorscript.front
 import mu.KLogging
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
-import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
 import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
 import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.result.Error
@@ -15,9 +14,8 @@ import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 import nl.jochembroekhoff.motorscript.lexparse.SourceReferenceAttachmentTool
 import org.jgrapht.graph.SimpleDirectedGraph
-import java.util.concurrent.CompletableFuture
 
-class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptContext>) : ExecutionUnit<Unit> {
+class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptContext>) : ExecutionUnit<Unit>() {
 
     companion object : KLogging()
 
@@ -67,8 +65,12 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
             }
         }.toTypedArray()
 
-        CompletableFuture.allOf(*futs).get()
-
-        return Ok(Unit)
+        return when (val gathered = gatherSafe(*futs)) {
+            is Ok -> Ok(Unit)
+            is Error -> {
+                gathered.value.forEach { it.dispatchTo(ectx.execution.messagePipe) }
+                Error(Unit)
+            }
+        }
     }
 }
