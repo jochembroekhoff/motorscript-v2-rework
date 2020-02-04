@@ -13,7 +13,7 @@ class FunctionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) : MOSE
         val entryPoint = gMkV { IREntry() }
 
         ctx.expressionStatement()?.also { exprStmtCtx ->
-            val retStmt = gMkV { IRReturn() }
+            val retStmt = gMkV { IRReturn(IRReturn.Type.EXPR) }
             g.addEdge(entryPoint, retStmt)
             val exprVisitor = ExpressionVisitor(ectx, g)
             val expr = exprVisitor.visitExpression(exprStmtCtx.expression())
