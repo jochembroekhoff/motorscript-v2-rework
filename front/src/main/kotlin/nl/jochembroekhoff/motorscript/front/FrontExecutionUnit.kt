@@ -5,8 +5,6 @@ import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
 import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
 import nl.jochembroekhoff.motorscript.common.pack.PackEntry
-import nl.jochembroekhoff.motorscript.common.result.Error
-import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.front.visitor.FunctionVisitor
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
@@ -65,12 +63,8 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
             }
         }.toTypedArray()
 
-        return when (val gathered = gatherSafe(*futs)) {
-            is Ok -> Ok(Unit)
-            is Error -> {
-                gathered.value.forEach { it.dispatchTo(ectx.execution.messagePipe) }
-                Error(Unit)
-            }
-        }
+        return gatherSafe(*futs)
+            .mapOk { Unit }
+            .mapError { errors -> errors.forEach { it.dispatchTo(ectx.execution.messagePipe) } }
     }
 }
