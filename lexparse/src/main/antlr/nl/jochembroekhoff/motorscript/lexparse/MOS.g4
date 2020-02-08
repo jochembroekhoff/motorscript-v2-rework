@@ -157,8 +157,8 @@ properties
     ;
 
 property
-    : ( Exclam? KwIs )? expression
-    | identifier Equals expression
+    : Exclam? KwIs expression
+    | identifier Exclam? Equals expression
     ;
 
 /*

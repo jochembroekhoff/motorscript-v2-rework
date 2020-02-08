@@ -105,7 +105,13 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
     }
 
     override fun visitSelector(ctx: MOSParser.SelectorContext): IRExpressionVertex {
-        throw FeatureUnimplementedExecutionException("Selectors are not implemented yet.")
+        val target = ctx.identifier().text
+        ctx.properties()?.also { propsCtx ->
+            val propsVisitor = PropertiesVisitor(ectx, g)
+            val props = propsVisitor.visitProperties(propsCtx)
+            // TODO: Attach props
+        }
+        // TODO: Return IRSelector vertex
     }
 
     override fun visitResource(ctx: MOSParser.ResourceContext): IRExpressionVertex {
