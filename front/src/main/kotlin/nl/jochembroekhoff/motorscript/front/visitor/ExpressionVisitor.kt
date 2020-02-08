@@ -1,10 +1,9 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
-import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
 import nl.jochembroekhoff.motorscript.common.extensions.collections.whenNotEmpty
-import nl.jochembroekhoff.motorscript.ir.expression.IRFind
-import nl.jochembroekhoff.motorscript.ir.expression.IRLiteralString
+import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
+import nl.jochembroekhoff.motorscript.ir.expression.*
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
@@ -53,7 +52,24 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         }
 
         ctx.invocation()?.also { ivkCtx ->
-            throw FeatureUnimplementedExecutionException("Method invocation is not implemented yet.")
+            val ivkV = gMkV { IRInvoke() }
+            val targetV = getRootExpr()
+            ivkV.gDependOn(targetV)
+            ivkCtx.arguments().also { argsCtx ->
+                argsCtx.expressionList()?.also { exprListCtx ->
+                    ExpressionListVisitor(ectx, g).visitExpressionList(exprListCtx).forEach {
+                        ivkV.gDependOn(it)
+                    }
+                }
+                argsCtx.expressionListNamed()?.also { exprListNamedCtx ->
+                    ExpressionListNamedVisitor(ectx, g).visitExpressionListNamed(exprListNamedCtx)
+                        .forEach { (_, argV) ->
+                            // TODO: Set name in dependency edge
+                            ivkV.gDependOn(argV)
+                        }
+                }
+            }
+            return ivkV
         }
 
         ctx.position()?.also { postfixCtx ->
@@ -83,7 +99,7 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         return visitChildren(ctx)
     }
 
-    override fun visitLiteral(ctx: MOSParser.LiteralContext): IRExpressionVertex {
+    override fun visitLiteral(ctx: MOSParser.LiteralContext): IRLiteral<*> {
         val literalVisitor = LiteralVisitor(ectx, g)
         return literalVisitor.visit(ctx)
     }
@@ -112,8 +128,8 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         throw FeatureUnimplementedExecutionException("Vectors are not implemented yet.")
     }
 
-    override fun visitIdentifier(ctx: MOSParser.IdentifierContext): IRExpressionVertex {
-        throw FeatureUnimplementedExecutionException("Identifier references are not implemented yet.")
+    override fun visitIdentifier(ctx: MOSParser.IdentifierContext): IRRef {
+        return gMkV { IRRef(ctx.text) }
     }
 
     override fun visitPath(ctx: MOSParser.PathContext): IRExpressionVertex {

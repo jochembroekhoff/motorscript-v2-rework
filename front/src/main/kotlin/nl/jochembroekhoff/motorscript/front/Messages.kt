@@ -7,4 +7,5 @@ internal object Messages {
     private const val category = "FRONT"
 
     val notImplemented = MessageBase(Level.WARNING, category, 1, "Feature not implemented.")
+    val duplicateNamedArgument = MessageBase(Level.ERROR, category, 2, "Duplicate named argument.")
 }

@@ -343,14 +343,14 @@ parameterType
     ;
 
 arguments
-    : expressionList? expressionListNamedTail?
+    : expressionList? expressionListNamed?
     ;
 
 expressionList
     : expression ( Comma expression )* Comma?
     ;
 
-expressionListNamedTail
+expressionListNamed
     : ( Comma identifier Equals expression )+
     ;
 

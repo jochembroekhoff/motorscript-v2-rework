@@ -1,6 +1,8 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
+import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
+import nl.jochembroekhoff.motorscript.common.messages.Attachable
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IREdgeType
 import nl.jochembroekhoff.motorscript.ir.graph.IRFlowVertex
@@ -23,5 +25,21 @@ abstract class MOSExtendedVisitor<T>(val ectx: ExecutionContext, val g: Graph<IR
 
     protected inline fun <T : IRVertex> gMkV(creator: () -> T): T {
         return creator().also { g.addVertex(it) }
+    }
+
+    protected inline fun internalAssert(condition: Boolean, description: String, attachmentsProvider: () -> List<Attachable>) {
+        if (!condition) {
+            throw InternalAssertionExecutionException(description, attachmentsProvider())
+        }
+    }
+
+    protected fun internalAssert(condition: Boolean, description: String? = null) {
+        if (!condition) {
+            if (description == null) {
+                throw InternalAssertionExecutionException()
+            } else {
+                throw InternalAssertionExecutionException(description)
+            }
+        }
     }
 }
