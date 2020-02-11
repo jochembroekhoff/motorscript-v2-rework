@@ -1,11 +1,10 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
+import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
 import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
-import nl.jochembroekhoff.motorscript.ir.flow.statement.IRExpressionStatement
-import nl.jochembroekhoff.motorscript.ir.flow.statement.IRIf
-import nl.jochembroekhoff.motorscript.ir.flow.statement.IRReturn
-import nl.jochembroekhoff.motorscript.ir.flow.statement.IRStatementVertex
+import nl.jochembroekhoff.motorscript.ir.expression.IRRef
+import nl.jochembroekhoff.motorscript.ir.flow.statement.*
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
@@ -15,7 +14,19 @@ import org.jgrapht.Graph
 class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
     MOSExtendedVisitor<IRStatementVertex>(ectx, g) {
     override fun visitDeclarationStatement(ctx: MOSParser.DeclarationStatementContext): IRStatementVertex {
-        throw FeatureUnimplementedExecutionException("Declaration statements are not implemented yet.")
+        // TODO: process modifiers, enforced type & all stuff
+        // TODO: increment ref scope
+
+        val declTargetCtx = ctx.declarationTarget()
+        if (declTargetCtx.vector() != null) {
+            // In case of vector declaration, all vector elements should be plain identifiers
+            throw FeatureUnimplementedExecutionException("Vector declaration statements are not implemented yet.")
+        }
+
+        return gMkV { IRAssign() }.also {
+            it.gDependOn(gMkV { IRRef(declTargetCtx.identifier().text) })
+            it.gDependOn(ExpressionVisitor(ectx, g).visitExpression(ctx.expression()))
+        }
     }
 
     override fun visitDeferStatement(ctx: MOSParser.DeferStatementContext): IRStatementVertex {
@@ -26,12 +37,34 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         throw FeatureUnimplementedExecutionException("Execute statements are not implemented yet.")
     }
 
-    override fun visitForIn(ctx: MOSParser.ForInContext): IRStatementVertex {
-        throw FeatureUnimplementedExecutionException("For statements statements are not implemented yet.")
+    override fun visitForStatement(ctx: MOSParser.ForStatementContext): IRStatementVertex {
+        ctx.forInfinite()?.also { forInfCtx ->
+            val forV = gMkV { IRFor(IRFor.Type.INFINITE) }
+            val block = BlockVisitor(ectx, g).visitBlock(forInfCtx.block())
+            forV.gBranchTo(block.first)
+            block.second.gFollowedBy(forV)
+            return forV
+        }
+
+        ctx.forIn()?.also { firInCtx ->
+            throw FeatureUnimplementedExecutionException("For-in loops are not implemented yet.")
+        }
+
+        ctx.forWhile()?.also { forWhileCtx ->
+            val conditionV = ExpressionVisitor(ectx, g).visitExpression(forWhileCtx.expression())
+            val forV = gMkV { IRFor(IRFor.Type.WHILE) }
+            forV.gDependOn(conditionV)
+            val block = BlockVisitor(ectx, g).visitBlock(forWhileCtx.block())
+            forV.gBranchTo(block.first)
+            block.second.gFollowedBy(forV)
+            return forV
+        }
+
+        throw InternalAssertionExecutionException("Unreachable.")
     }
 
     override fun visitIfStatement(ctx: MOSParser.IfStatementContext): IRIf {
-        val ifV = gMkV { IRIf() }
+        val ifStmtV = gMkV { IRIf() }
 
         fun createBranch(
             exprCtx: MOSParser.ExpressionContext,
@@ -46,16 +79,16 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
             ctx.ifElseIfBranch().asSequence().map { createBranch(it.expression(), it.block()) }
 
         branches.forEach { (expr, branch) ->
-            ifV.gDependOn(expr)
-            ifV.gBranchTo(branch.first)
+            ifStmtV.gDependOn(expr)
+            ifStmtV.gBranchTo(branch.first)
         }
 
         ctx.ifElseBranch()?.also { elseBranchCtx ->
             val elseBlock = BlockVisitor(ectx, g).visitBlock(elseBranchCtx.block())
-            ifV.gBranchTo(elseBlock.first)
+            ifStmtV.gBranchTo(elseBlock.first)
         }
 
-        return ifV
+        return ifStmtV
     }
 
     override fun visitSwitchStatement(ctx: MOSParser.SwitchStatementContext): IRStatementVertex {
@@ -75,6 +108,10 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
 
     override fun visitYieldStatement(ctx: MOSParser.YieldStatementContext): IRStatementVertex {
         throw FeatureUnimplementedExecutionException("Yield statements are not implemented yet.")
+    }
+
+    override fun visitAssignStatement(ctx: MOSParser.AssignStatementContext): IRStatementVertex {
+        throw FeatureUnimplementedExecutionException("Assign statements are not implemented yet.")
     }
 
     override fun visitExpressionStatement(ctx: MOSParser.ExpressionStatementContext): IRStatementVertex {

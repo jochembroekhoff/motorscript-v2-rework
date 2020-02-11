@@ -1,6 +1,7 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
+import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
 import nl.jochembroekhoff.motorscript.common.extensions.collections.whenNotEmpty
 import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
 import nl.jochembroekhoff.motorscript.ir.expression.*
@@ -18,12 +19,12 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
      * combination and finding.
      */
     override fun visitExpression(ctx: MOSParser.ExpressionContext): IRExpressionVertex {
-        fun getRootExpr() = ExpressionVisitor(ectx, g).visitExpression(ctx.expression().first())
+        fun getExprV(i: Int = 0) = ExpressionVisitor(ectx, g).visitExpression(ctx.expression()[i])
 
         ctx.find().whenNotEmpty { findCtxs ->
             // Hold reference to last find part, starting with the root expression, because all the finds will be
             // created as a chain leading up to the root expression
-            var curr = getRootExpr()
+            var curr = getExprV()
 
             findCtxs.forEach { findCtx ->
                 findCtx.findIndex()?.also { findIndexCtx ->
@@ -53,7 +54,7 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
 
         ctx.invocation()?.also { ivkCtx ->
             val ivkV = gMkV { IRInvoke() }
-            val targetV = getRootExpr()
+            val targetV = getExprV()
             ivkV.gDependOn(targetV)
             ivkCtx.arguments().also { argsCtx ->
                 argsCtx.expressionList()?.also { exprListCtx ->
@@ -72,12 +73,23 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
             return ivkV
         }
 
-        ctx.position()?.also { postfixCtx ->
-            throw FeatureUnimplementedExecutionException("Postfix operations are not implemented yet.")
+        ctx.postfix()?.also { postfixCtx ->
+            val targetV = getExprV()
+            postfixCtx.MinusDouble()?.also {
+                return gMkV { IRPostfix(IRPostfix.Op.DECR) }.also {
+                    it.gDependOn(targetV)
+                }
+            }
+            postfixCtx.PlusDouble()?.also {
+                return gMkV { IRPostfix(IRPostfix.Op.INCR) }.also {
+                    it.gDependOn(targetV)
+                }
+            }
+            internalAssert(false, "Unexpected postfix operator: ${postfixCtx.text}")
         }
 
         ctx.prefix()?.also { prefixCtx ->
-            val targetV = getRootExpr()
+            val targetV = getExprV()
             prefixCtx.Exclam()?.also {
                 return gMkV { IRUnary(IRUnary.Op.NEGATE) }.also {
                     it.gDependOn(targetV)
@@ -93,11 +105,26 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
                     it.gDependOn(targetV)
                 }
             }
-            internalAssert(false, "Unexpexted prefix/unary operator")
+            internalAssert(false, "Unexpected prefix/unary operator: ${prefixCtx.text}")
         }
 
         ctx.compare()?.also { compCtx ->
-            throw FeatureUnimplementedExecutionException("Comparision operations are not implemented yet.")
+            val comparisionType = when {
+                compCtx.KwIs() != null -> IRCompare.Type.IS
+                compCtx.KwMatches() != null -> IRCompare.Type.MATCHES
+                compCtx.LessThan() != null -> IRCompare.Type.LT
+                compCtx.LessThanOrEqualTo() != null -> IRCompare.Type.LTE
+                compCtx.GreaterThan() != null -> IRCompare.Type.GT
+                compCtx.GreaterThanOrEqualTo() != null -> IRCompare.Type.GTE
+                compCtx.EqualsDouble() != null -> IRCompare.Type.EQ
+                else -> throw InternalAssertionExecutionException("Unexpected comparison operator: ${compCtx.text}")
+            }
+            val compV = gMkV { IRCompare(comparisionType) }
+            val leftV = getExprV(0)
+            val rightV = getExprV(1)
+            compV.gDependOn(leftV)
+            compV.gDependOn(rightV)
+            return compV
         }
 
         ctx.DotDot()?.also {
@@ -106,10 +133,6 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
 
         ctx.rangeAndLower()?.also { rangeAndLowerCtx ->
             throw FeatureUnimplementedExecutionException("Ranges are not implemented yet.")
-        }
-
-        ctx.assign()?.also { assignCtx ->
-            throw FeatureUnimplementedExecutionException("Assignment is not implemented yet.")
         }
 
         return visitChildren(ctx)

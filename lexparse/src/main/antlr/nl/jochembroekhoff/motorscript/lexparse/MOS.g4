@@ -82,6 +82,7 @@ statement
     | switchStatement
     | returnStatement
     | yieldStatement
+    | assignStatement
     | expressionStatement
     ;
 
@@ -111,8 +112,6 @@ expression
    // ranges
     | expression DotDot expression?
     | rangeAndLower
-   // assignment
-    |<assoc=right> expression assign expression
    // misc
     | literal
     | selector
@@ -547,6 +546,15 @@ switchDefault
 
 returnStatement
     : KwReturn expression?
+    ;
+
+/*
+ * Assign statement
+ */
+
+assignStatement
+   // Could start with '( expression Equals )*' to allow multiple assignment
+    : expression assign expression
     ;
 
 /*
