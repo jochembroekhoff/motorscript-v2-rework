@@ -1,11 +1,14 @@
 package nl.jochembroekhoff.motorscript.common.execution
 
+import mu.KLogging
 import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 import java.util.concurrent.CompletableFuture
 
 abstract class ExecutionUnit<T> {
+    companion object : KLogging()
+
     /**
      * Execute this unit in the given [ectx].
      *
@@ -44,8 +47,14 @@ abstract class ExecutionUnit<T> {
                     val cause = ex.cause
                     if (cause is ExecutionException) {
                         exceptions.add(cause)
+                    } else {
+                        // TODO: Improve this unidentified execution exception. Constructing an
+                        //       UnidentifiedExecutionException creates an extra stack trace to this method which is not
+                        //       really accurate since this is not the place where the error happens
+                        exceptions.add(UnidentifiedExecutionException(cause ?: ex))
                     }
-                } catch (_: Exception) {
+                } catch (ex: Exception) {
+                    exceptions.add(UnidentifiedExecutionException(ex))
                 }
             }
             Error(exceptions)

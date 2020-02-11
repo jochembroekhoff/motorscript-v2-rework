@@ -17,7 +17,7 @@ script
     ;
 
 /**
- ** Section: identifier, path and soft keywords
+ ** Section: identifier, ref and soft keywords
  **/
 
 softKeyword
@@ -40,15 +40,15 @@ softKeyword
     | KwUser
     ;
 
-path
-    : ( pathNamespace? Colon )? pathName
+ref
+    : ( refNamespace? Colon )? refName
     ;
 
-pathNamespace
+refNamespace
     : identifier
     ;
 
-pathName
+refName
     : identifier ( SlashBw identifier )*
     ;
 
@@ -69,8 +69,8 @@ topLevelItem
     ;
 
 block
-    : statement ColonSemi?
-    | AccL ( statement ColonSemi? )* AccR
+    : AccL ( statement ColonSemi? )* AccR // This one should have highest prio, else block may be parsed as an NBT expr
+    | statement ColonSemi?
     ;
 
 statement
@@ -121,8 +121,7 @@ expression
     | nbt
     | position
     | vector
-    | identifier
-    | path
+    | ref
     | typeEnumReference
     ;
 
@@ -184,7 +183,7 @@ findIndex
  */
 
 type
-    : path
+    : ref
     ;
 
 typeReference
@@ -232,7 +231,7 @@ selector
  */
 
 resource
-    : Dollar path properties?
+    : Dollar ref properties?
     ;
 
 tags
@@ -240,7 +239,7 @@ tags
     ;
 
 tag
-    : Hash path
+    : Hash ref
     ;
 
 /*
@@ -585,7 +584,7 @@ useDeclarations
     ;
 
 useDeclaration
-    : KwUse path
+    : KwUse ref
     ;
 
 compare

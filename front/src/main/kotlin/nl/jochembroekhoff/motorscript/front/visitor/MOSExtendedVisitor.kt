@@ -23,6 +23,12 @@ abstract class MOSExtendedVisitor<T>(val ectx: ExecutionContext, val g: Graph<IR
         return e
     }
 
+    protected fun IRFlowVertex.gBranchTo(v: IRFlowVertex): IREdge {
+        val e = IREdge(IREdgeType.BRANCH)
+        g.addEdge(this, v, e)
+        return e
+    }
+
     protected inline fun <T : IRVertex> gMkV(creator: () -> T): T {
         return creator().also { g.addVertex(it) }
     }

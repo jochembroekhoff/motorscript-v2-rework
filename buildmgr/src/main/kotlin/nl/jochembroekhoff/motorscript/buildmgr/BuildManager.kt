@@ -59,8 +59,12 @@ object BuildManager : KLogging() {
 
         val executionContext = ExecutionContext(execution, executor)
 
-        val frontRes = DiscoverExecutionUnit().executeInContext(executionContext).then { discoverResult ->
+        val frontRes = DiscoverExecutionUnit().executeInContext(executionContext).withError { err ->
+            logger.trace { "Discover failed with $err" }
+        }.then { discoverResult ->
             LexParseExecutionUnit(discoverResult).executeInContext(executionContext)
+        }.withError { err ->
+            logger.trace { "LexParse failed with $err" }
         }.then { lexParseRes ->
             FrontExecutionUnit(lexParseRes).executeInContext(executionContext)
         }

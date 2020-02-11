@@ -77,7 +77,23 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         }
 
         ctx.prefix()?.also { prefixCtx ->
-            throw FeatureUnimplementedExecutionException("Prefix/unary operations are not implemented yet.")
+            val targetV = getRootExpr()
+            prefixCtx.Exclam()?.also {
+                return gMkV { IRUnary(IRUnary.Op.NEGATE) }.also {
+                    it.gDependOn(targetV)
+                }
+            }
+            prefixCtx.MinusDouble()?.also {
+                return gMkV { IRUnary(IRUnary.Op.PRE_DECR) }.also {
+                    it.gDependOn(targetV)
+                }
+            }
+            prefixCtx.PlusDouble()?.also {
+                return gMkV { IRUnary(IRUnary.Op.PRE_INCR) }.also {
+                    it.gDependOn(targetV)
+                }
+            }
+            internalAssert(false, "Unexpexted prefix/unary operator")
         }
 
         ctx.compare()?.also { compCtx ->
@@ -104,18 +120,38 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         return literalVisitor.visit(ctx)
     }
 
-    override fun visitSelector(ctx: MOSParser.SelectorContext): IRExpressionVertex {
-        val target = ctx.identifier().text
+    override fun visitSelector(ctx: MOSParser.SelectorContext): IRSelectorPrimitive {
+        val targetRepr = ctx.identifier().text
+        val target = IRSelectorPrimitive.Target.REVERSE_MAPPING[targetRepr]
+        val selectorV = if (target == null) {
+            gMkV { IRSelectorPrimitive(IRSelectorPrimitive.Target.ENTITY_ALL) }.also {
+                // TODO: Dispatch info message informing about the fact that a selector was implicitly converted
+                // TODO: Add first dependency to the "name" slot with the value being targetRepr
+            }
+        } else {
+            gMkV { IRSelectorPrimitive(target) }
+        }
+
         ctx.properties()?.also { propsCtx ->
             val propsVisitor = PropertiesVisitor(ectx, g)
             val props = propsVisitor.visitProperties(propsCtx)
             // TODO: Attach props
         }
-        // TODO: Return IRSelector vertex
+
+        return selectorV
     }
 
-    override fun visitResource(ctx: MOSParser.ResourceContext): IRExpressionVertex {
-        throw FeatureUnimplementedExecutionException("Resources are not implemented yet.")
+    override fun visitResource(ctx: MOSParser.ResourceContext): IRResource {
+        val resV = gMkV { IRResource() }
+        val refVisitor = RefVisitor(ectx, g)
+        val refV = refVisitor.visitRef(ctx.ref())
+        resV.gDependOn(refV)
+        ctx.properties()?.also { propsCtx ->
+            val propsVisitor = PropertiesVisitor(ectx, g)
+            val props = propsVisitor.visitProperties(propsCtx)
+            // TODO: Attach props
+        }
+        return resV
     }
 
     override fun visitTag(ctx: MOSParser.TagContext): IRExpressionVertex {
@@ -134,12 +170,9 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         throw FeatureUnimplementedExecutionException("Vectors are not implemented yet.")
     }
 
-    override fun visitIdentifier(ctx: MOSParser.IdentifierContext): IRRef {
-        return gMkV { IRRef(ctx.text) }
-    }
-
-    override fun visitPath(ctx: MOSParser.PathContext): IRExpressionVertex {
-        throw FeatureUnimplementedExecutionException("Path references are not implemented yet.")
+    override fun visitRef(ctx: MOSParser.RefContext): IRRef {
+        val refVisitor = RefVisitor(ectx, g)
+        return refVisitor.visitRef(ctx)
     }
 
     override fun visitTypeEnumReference(ctx: MOSParser.TypeEnumReferenceContext): IRExpressionVertex {

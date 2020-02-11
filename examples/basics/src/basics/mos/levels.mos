@@ -1,6 +1,5 @@
 use text\tellraw
 
-/*
 default user func levels
 {
     if !@s[type = $player] return;
@@ -13,4 +12,3 @@ default user func levels
     }
     tellraw(@s, "Done")
 }
-*/
