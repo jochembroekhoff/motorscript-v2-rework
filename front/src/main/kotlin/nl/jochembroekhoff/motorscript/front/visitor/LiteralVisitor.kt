@@ -5,6 +5,7 @@ import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionExcepti
 import nl.jochembroekhoff.motorscript.common.util.StringUtil
 import nl.jochembroekhoff.motorscript.ir.expression.IRLiteral
 import nl.jochembroekhoff.motorscript.ir.expression.IRLiteralBoolean
+import nl.jochembroekhoff.motorscript.ir.expression.IRLiteralInteger
 import nl.jochembroekhoff.motorscript.ir.expression.IRLiteralString
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
@@ -25,7 +26,8 @@ class LiteralVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) : MOSEx
         throw FeatureUnimplementedExecutionException("Real literals are not implemented yet.")
     }
 
-    override fun visitLiteralInteger(ctx: MOSParser.LiteralIntegerContext): IRLiteral<*> {
-        throw FeatureUnimplementedExecutionException("Integer literals are not implemented yet.")
+    override fun visitLiteralInteger(ctx: MOSParser.LiteralIntegerContext): IRLiteralInteger {
+        val intValue = Integer.parseInt(ctx.Integer().text)
+        return gMkV { IRLiteralInteger(intValue) }
     }
 }
