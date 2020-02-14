@@ -34,29 +34,23 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                     }
 
                     tli.aliasDeclaration()?.also { aliasDecl ->
-                        ectx.execution.messagePipe.dispatch(
-                            Messages.notImplemented.new(
-                                "Alias declarations are not implemented yet. The alias declaration is skipped.",
-                                listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, aliasDecl.start))
-                            )
+                        throw FeatureUnimplementedExecutionException(
+                            "Alias declarations are not implemented yet.",
+                            listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, aliasDecl.start))
                         )
                     }
 
                     tli.typeSpecification()?.also { typeSpec ->
-                        ectx.execution.messagePipe.dispatch(
-                            Messages.notImplemented.new(
-                                "Type specifications are not implemented yet. The type specification is skipped.",
-                                listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, typeSpec.start))
-                            )
+                        throw FeatureUnimplementedExecutionException(
+                            "Type specifications are not implemented yet.",
+                            listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, typeSpec.start))
                         )
                     }
 
                     tli.declarationStatement()?.also { contDecl ->
-                        ectx.execution.messagePipe.dispatch(
-                            Messages.notImplemented.new(
-                                "Top-level container declarations are not implemented yet. The container declaration is skipped.",
-                                listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, contDecl.start))
-                            )
+                        throw FeatureUnimplementedExecutionException(
+                            "Top-level container declarations are not implemented yet.",
+                            listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, contDecl.start))
                         )
                     }
                 }

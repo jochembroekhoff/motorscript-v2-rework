@@ -21,6 +21,7 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
     override fun visitExpression(ctx: MOSParser.ExpressionContext): IRExpressionVertex {
         fun getExprV(i: Int = 0) = ExpressionVisitor(ectx, g).visitExpression(ctx.expression()[i])
 
+        // This 'flat' finding could just be replaced with recursive finding, will produce the same IR in the end
         ctx.find().whenNotEmpty { findCtxs ->
             // Hold reference to last find part, starting with the root expression, because all the finds will be
             // created as a chain leading up to the root expression
@@ -31,7 +32,8 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
                     val vFind = gMkV { IRFind(IRFind.Type.INDEX) }
                     val expressionVisitor = ExpressionVisitor(ectx, g)
                     val expr = expressionVisitor.visitExpression(findIndexCtx.expression())
-                    vFind.gDependOn(expr)
+                    vFind.gDependOn(expr) // Index value dependency
+                    vFind.gDependOn(curr) // Ensure parts chain
                     curr = vFind
                 }
                 findCtx.findPath()?.also { findPathCtx ->
@@ -44,7 +46,8 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
 
                     // Build graph
                     val vFind = gMkV { IRFind(IRFind.Type.PATH) }
-                    vFind.gDependOn(gMkV { IRLiteralString(stringValue) })
+                    vFind.gDependOn(gMkV { IRLiteralString(stringValue) }) // Path find text value dependency
+                    vFind.gDependOn(curr) // Ensure parts chain
                     curr = vFind
                 }
             }
