@@ -4,9 +4,11 @@ import mu.KLogging
 import nl.jochembroekhoff.motorscript.common.extensions.path.allNames
 import nl.jochembroekhoff.motorscript.common.extensions.path.extension
 import nl.jochembroekhoff.motorscript.common.extensions.path.stem
+import nl.jochembroekhoff.motorscript.common.extensions.sequences.dropNull
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Stream
+import kotlin.streams.asSequence
 
 class PackIndex {
     private val root: Map<NamespaceTypeCombo, Map<List<String>, PackEntry>>
@@ -34,7 +36,7 @@ class PackIndex {
         fun loadFrom(source: Path): PackIndex {
             val builder = PackIndexBuilder()
             Files.walk(source).use { stream ->
-                stream
+                stream.asSequence()
                     // Skip directories (primarily)
                     .filter { f -> Files.isRegularFile(f) }
                     // Only have paths relative to the source
@@ -50,12 +52,15 @@ class PackIndex {
                             .map { it.toString() }
                         val extension = f.extension
 
-                        // TODO: Validate name.length >= 1
+                        if (name.isEmpty()) {
+                            return@map null
+                        }
 
                         return@map PackEntry(type, namespace, name.dropLast(1), name.last(), extension).also {
                             logger.trace { "Pack entry: $it" }
                         }
                     }
+                    .dropNull()
                     .forEach(builder::addEntry)
             }
             return builder.build()
