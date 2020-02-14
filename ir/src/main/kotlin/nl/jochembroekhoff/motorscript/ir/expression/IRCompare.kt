@@ -12,4 +12,8 @@ class IRCompare(val type: Type) : IRExpressionVertex() {
         GTE,
         EQ
     }
+
+    override fun contentDescription(): String {
+        return "Type: $type"
+    }
 }

@@ -4,4 +4,8 @@ import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 
 abstract class IRLiteral<T>(val stringValue: String) : IRExpressionVertex() {
     abstract val value: T
+
+    override fun contentDescription(): String {
+        return "Value: $stringValue"
+    }
 }

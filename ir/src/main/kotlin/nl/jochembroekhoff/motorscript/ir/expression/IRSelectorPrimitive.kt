@@ -20,4 +20,8 @@ class IRSelectorPrimitive(val target: Target) : IRExpressionVertex() {
             )
         }
     }
+
+    override fun contentDescription(): String {
+        return "Target: $target (${target.repr})"
+    }
 }

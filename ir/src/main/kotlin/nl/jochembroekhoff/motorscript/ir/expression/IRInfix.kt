@@ -10,4 +10,8 @@ class IRInfix(val op: Op) : IRExpressionVertex() {
         PLUS("+"),
         MINUS("-"),
     }
+
+    override fun contentDescription(): String {
+        return "Op: $op"
+    }
 }

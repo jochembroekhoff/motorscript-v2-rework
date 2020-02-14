@@ -13,7 +13,7 @@ import org.jgrapht.Graph
 abstract class MOSExtendedVisitor<T>(val ectx: ExecutionContext, val g: Graph<IRVertex, IREdge>) : MOSBaseVisitor<T>() {
     protected fun IRVertex.gDependOn(v: IRVertex): IREdge {
         val e = IREdge(IREdgeType.DEPENDENCY)
-        g.addEdge(this, v, e)
+        g.addEdge(v, this, e)
         return e
     }
 

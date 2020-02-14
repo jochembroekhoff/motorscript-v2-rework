@@ -7,4 +7,8 @@ class IRFind(val type: Type) : IRExpressionVertex() {
         INDEX,
         PATH
     }
+
+    override fun contentDescription(): String {
+        return "Type: $type"
+    }
 }

@@ -7,4 +7,8 @@ class IRPostfix(val op: Op) : IRExpressionVertex() {
         DECR("--"),
         INCR("++")
     }
+
+    override fun contentDescription(): String {
+        return "Op: $op"
+    }
 }

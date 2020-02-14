@@ -8,4 +8,8 @@ class IRUnary(val op: Op) : IRExpressionVertex() {
         PRE_DECR("--"),
         PRE_INCR("++")
     }
+
+    override fun contentDescription(): String {
+        return "Op: $op"
+    }
 }
