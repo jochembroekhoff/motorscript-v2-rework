@@ -7,6 +7,7 @@ module motorscript.common {
     exports nl.jochembroekhoff.motorscript.common.extensions.sequences;
     exports nl.jochembroekhoff.motorscript.common.messages;
     exports nl.jochembroekhoff.motorscript.common.pack;
+    exports nl.jochembroekhoff.motorscript.common.ref;
     exports nl.jochembroekhoff.motorscript.common.result;
     exports nl.jochembroekhoff.motorscript.common.util;
 
