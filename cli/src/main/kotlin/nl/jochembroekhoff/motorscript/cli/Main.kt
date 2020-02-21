@@ -3,6 +3,7 @@ package nl.jochembroekhoff.motorscript.cli
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
+import kotlinx.cli.multiple
 import mu.KLogging
 import nl.jochembroekhoff.motorscript.buildmgr.BuildManager
 import nl.jochembroekhoff.motorscript.common.result.Error
@@ -19,16 +20,30 @@ object Main : KLogging() {
         val optionBuildRoot by parser.option(
             ArgType.String,
             shortName = "r",
-            description = "Path to build root",
-            fullName = "buildroot"
+            fullName = "buildroot",
+            description = "Path to build root"
         ).default(".")
+
+        val optionDebugFlags by parser.option(
+            ArgType.Choice(listOf("export_graph_front")),
+            shortName = "d",
+            fullName = "debug_flag",
+            description = "Debug flag to enable"
+        ).multiple()
 
         val optionJobs by parser.option(
             ArgType.Int,
             shortName = "j",
-            description = "Amount of concurrent jobs, if less then 1, the number of available processors is used",
-            fullName = "jobs"
+            fullName = "jobs",
+            description = "Amount of concurrent jobs, if less then 1, the number of available processors is used"
         ).default(0)
+
+        val optionProperties by parser.option(
+            KeyValueArgType(),
+            shortName = "P",
+            fullName = "property",
+            description = "General-purpose property"
+        ).multiple()
 
         try {
             parser.parse(args)
@@ -37,6 +52,17 @@ object Main : KLogging() {
             println(ex.localizedMessage)
             return
         }
+
+        /*
+         * Basic args processing
+         */
+
+        val propertyMap = optionProperties.toMap()
+        val debugFlags = optionDebugFlags.mapTo(LinkedHashSet()) { it -> it + "TODO" }
+
+        /*
+         * Build spec loading and execution creation
+         */
 
         val buildRoot = Paths.get(optionBuildRoot)
 
