@@ -9,4 +9,5 @@ module motorscript.front {
     requires motorscript.lexparse;
 
     requires org.jgrapht.core;
+    requires org.jgrapht.io;
 }

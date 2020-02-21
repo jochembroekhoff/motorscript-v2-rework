@@ -12,6 +12,10 @@ import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 import nl.jochembroekhoff.motorscript.lexparse.SourceReferenceAttachmentTool
 import org.jgrapht.graph.SimpleDirectedGraph
+import org.jgrapht.io.ComponentNameProvider
+import org.jgrapht.io.DOTExporter
+import org.jgrapht.io.IntegerComponentNameProvider
+import java.io.File
 
 class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptContext>) : ExecutionUnit<Unit>() {
 
@@ -19,6 +23,9 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
 
     override fun executeInContext(ectx: ExecutionContext): Result<Unit, Unit> {
         logger.debug { "Executing :front" }
+
+        val tmpFolder = File("/tmp/mosg")
+        tmpFolder.mkdirs()
 
         val futs = entries.map { (k, v) ->
             ectx.executor.supply {
@@ -31,6 +38,25 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                         val funcGraph = SimpleDirectedGraph<IRVertex, IREdge>(IREdge::class.java)
                         val funcVisitor = FunctionVisitor(ectx, funcGraph)
                         val entryPoint = funcVisitor.visitFunctionBody(funcDecl.functionBody())
+
+                        // TMP
+                        val exporter = DOTExporter<IRVertex, IREdge>(
+                            IntegerComponentNameProvider(),
+                            ComponentNameProvider { component ->
+                                // Could move to .toString()
+                                val base = "${component.contentClass()} : ${component::class.java.simpleName}"
+                                val description = component.contentDescription()
+                                if (description.isNotBlank()) {
+                                    "$base\n$description"
+                                } else {
+                                    base
+                                }
+                            },
+                            ComponentNameProvider { edge ->
+                                edge.type.toString()
+                            }
+                        )
+                        exporter.exportGraph(funcGraph, File(tmpFolder, "$funcName.dot"))
                     }
 
                     tli.aliasDeclaration()?.also { aliasDecl ->
