@@ -24,7 +24,7 @@ object StringUtil {
         if (input.startsWith('\'') && input.endsWith('\'') ||
             input.startsWith('\"') && input.endsWith('\"')
         ) {
-            return input.substring(1, input.length - 2)
+            return input.substring(1, input.length - 1)
         }
 
         throw IllegalArgumentException("Invalid input string.")

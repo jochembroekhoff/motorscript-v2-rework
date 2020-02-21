@@ -5,6 +5,7 @@ import nl.jochembroekhoff.motorscript.common.result.Ok
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
@@ -51,6 +52,33 @@ class StringUtilTest {
             fun `fail on unknown escape char`(c: Char) {
                 assertEquals(Error<String, String>("Cannot escape char '$c'"), StringUtil.unescape("\\$c"))
             }
+        }
+    }
+
+    @Nested
+    inner class Unquote {
+
+        @Test
+        fun empty() {
+            assertEquals("", StringUtil.unqote(""))
+        }
+
+        @Test
+        fun `fail with single quote`() {
+            assertThrows<IllegalArgumentException> { StringUtil.unqote("'") }
+            assertThrows<IllegalArgumentException> { StringUtil.unqote("\"") }
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = ["appel", "peer", "hello with space", "OK MotorScript!?!!?"])
+        fun `single quotes`(input: String) {
+            assertEquals(input, StringUtil.unqote("'$input'"))
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = ["appel", "peer", "hello with space", "OK MotorScript!?!!?"])
+        fun `double quotes`(input: String) {
+            assertEquals(input, StringUtil.unqote("\"$input\""))
         }
     }
 }
