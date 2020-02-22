@@ -10,7 +10,7 @@ import nl.jochembroekhoff.motorscript.front.visitor.FunctionVisitor
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
-import nl.jochembroekhoff.motorscript.lexparse.SourceReferenceAttachmentTool
+import nl.jochembroekhoff.motorscript.lexparse.util.SourceReferenceAttachmentUtil
 import org.jgrapht.graph.SimpleDirectedGraph
 import org.jgrapht.io.ComponentNameProvider
 import org.jgrapht.io.DOTExporter
@@ -62,21 +62,21 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                     tli.aliasDeclaration()?.also { aliasDecl ->
                         throw FeatureUnimplementedExecutionException(
                             "Alias declarations are not implemented yet.",
-                            listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, aliasDecl.start))
+                            listOf(SourceReferenceAttachmentUtil.fromTokenInFile(source, aliasDecl.start))
                         )
                     }
 
                     tli.typeSpecification()?.also { typeSpec ->
                         throw FeatureUnimplementedExecutionException(
                             "Type specifications are not implemented yet.",
-                            listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, typeSpec.start))
+                            listOf(SourceReferenceAttachmentUtil.fromTokenInFile(source, typeSpec.start))
                         )
                     }
 
                     tli.declarationStatement()?.also { contDecl ->
                         throw FeatureUnimplementedExecutionException(
                             "Top-level container declarations are not implemented yet.",
-                            listOf(SourceReferenceAttachmentTool.fromTokenInFile(source, contDecl.start))
+                            listOf(SourceReferenceAttachmentUtil.fromTokenInFile(source, contDecl.start))
                         )
                     }
                 }
