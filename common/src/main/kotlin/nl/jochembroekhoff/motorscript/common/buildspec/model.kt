@@ -8,7 +8,7 @@ data class BuildSpec(
     val version: String,
     val description: String,
     val targets: List<Target>,
-    val dependencies: List<Dependency>
+    val dependencies: List<Dependency> = listOf()
 )
 
 @Serializable
