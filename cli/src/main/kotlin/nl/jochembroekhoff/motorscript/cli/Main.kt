@@ -6,6 +6,7 @@ import kotlinx.cli.default
 import kotlinx.cli.multiple
 import mu.KLogging
 import nl.jochembroekhoff.motorscript.buildmgr.BuildManager
+import nl.jochembroekhoff.motorscript.common.messages.Level
 import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import java.nio.file.Files
@@ -15,6 +16,10 @@ import java.util.concurrent.Executors
 object Main : KLogging() {
     @JvmStatic
     fun main(args: Array<String>) {
+        val timingOverallStart = System.nanoTime()
+        var timingCompilationStart = 0L
+        var timingCompilationEnd = 0L
+
         val parser = ArgParser("mosc")
 
         val optionBuildRoot by parser.option(
@@ -94,7 +99,9 @@ object Main : KLogging() {
                         val executor = Executors.newFixedThreadPool(actualNumJobs, CustomThreadFactory())
                         logger.debug { "Created thread pool executor of $actualNumJobs thread(s)" }
 
+                        timingCompilationStart = System.nanoTime()
                         BuildManager.runInExecutor(execution.value, executor)
+                        timingCompilationEnd = System.nanoTime()
 
                         executor.shutdown()
                     }
@@ -102,8 +109,40 @@ object Main : KLogging() {
             }
         }
 
+        var hasErrors = false
+        var hasWarnings = false
+
         messagePipe.streamAll().forEach { message ->
+            if (!hasErrors && message.base.level == Level.ERROR) {
+                hasErrors = true
+            }
+            if (!hasWarnings && message.base.level == Level.WARNING) {
+                hasWarnings = true
+            }
             println(message.format())
+        }
+
+        val timingOverallEnd = System.nanoTime()
+
+        val elapsedOverall = (timingOverallEnd - timingOverallStart) / 1e9
+        val elapsedCompilation = (timingCompilationEnd - timingCompilationStart) / 1e9
+
+        val timingText = if (elapsedCompilation > 0) {
+            String.format("%.3f s overall, %.3f s compilation", elapsedOverall, elapsedCompilation)
+        } else {
+            String.format("%.3f s overall", elapsedOverall)
+        }
+
+        when {
+            hasErrors -> {
+                System.err.println("Compilation failed (took $timingText)")
+            }
+            hasWarnings -> {
+                System.err.println("Compilation completed with warnings (took $timingText)")
+            }
+            else -> {
+                System.err.println("Compilation succeeded (took $timingText)")
+            }
         }
     }
 }

@@ -11,7 +11,10 @@ object SourceReferenceAttachmentUtil {
         val startIndex = token.startIndex
         val stopIndex = token.stopIndex
         if (startIndex == -1 || stopIndex == -1) {
-            // LEFTOFF: Could maybe extract more info from the Token instance
+            val length = stopIndex - startIndex + 1
+            if (length > 1) {
+                // Could maybe return with ending char
+            }
         }
         return SourcePosition(token.line, token.charPositionInLine)
     }
