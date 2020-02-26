@@ -1,0 +1,8 @@
+site_name: MotorScript
+
+nav:
+  - Home: index.md
+  - Introduction: introduction.md
+  - Configuration: configuration.md
+  - Internals:
+      - References: internals/references.md
