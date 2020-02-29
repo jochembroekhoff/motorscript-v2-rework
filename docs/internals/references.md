@@ -120,7 +120,18 @@ As seen above, references pop up in a lot of places. But as described, not all r
 This section tries to make clear how this differentiation is dealt with internally. It's a step up to the section about
 resolving partial references.
 
-...
+schets:
+- top-level declaratie kan alleen refereren aan _andere_ top-level items
+- refs binnen een resource of tag gebruiken niet de lokale scope. als je toch aan een constante een resource of tag
+  wilt toewijzen, kun je er later gewoon aan refereren zonder dollar of hash geprefixt
+- top-level expressions kunnen alleen refereren aan items die de `builtin` modifier dragen
+- partial references in `use`-statements refereren standaard naar een item in de volgende namespaces (volgorde van
+  prioriteit): `prelude`, `minecraft`, `<src file ns>`. maar, boven deze namespace-prioriteiten is de relatieve import
+  belangrijker. daarom kun je dus bijvoorbeeld `use text\tellraw` overriden als je relatief t.o.v. het bronbestand een
+  item in de namespace hebt dat eindigt met `text\tellraw`.
+- andere references (alles buitenom het `use`-gebied dus), hebben nog een eigen 'resolve container' waarin gaandeweg
+
+TODO: `text\tellraw(@s, "Hello")` zou moeten werken, ook al heb je niet expliciet dat ge&iuml;mporteerd
 
 # Resolving of partial references
 
