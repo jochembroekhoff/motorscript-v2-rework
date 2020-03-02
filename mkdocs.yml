@@ -5,10 +5,15 @@ theme: windmill
 nav:
   - Home: index.md
   - Introduction: introduction.md
+  - Features: features.md
+  - Tutorials:
+      - Game of Life: tutorials/life.md
+      - Minesweeper: tutorials/minesweeper.md
   - Configuration: configuration.md
   - Plug-ins:
       - Usage: plugins/usage.md
       - Developing plug-ins: plugins/development.md
+  - Supported targets: targets.md
   - Internals:
       - Compiler organization:
         - Structure overview: internals/organization/overview.md
@@ -21,3 +26,4 @@ nav:
         - transform: internals/organization/transform.md
         - gen: internals/organization/gen.md
       - References: internals/references.md
+      - Naming convention: internals/naming-convention.md
