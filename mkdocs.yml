@@ -5,11 +5,14 @@ theme: windmill
 nav:
   - Home: index.md
   - Introduction: introduction.md
-  - Features: features.md
+  - Features:
+      - Overview: features/overview.md
   - Tutorials:
       - Game of Life: tutorials/life.md
       - Minesweeper: tutorials/minesweeper.md
-  - Configuration: configuration.md
+  - Configuration:
+      - Build spec: configuration/build-spec.md
+      - CLI options: configuration/cli-options.md
   - Plug-ins:
       - Usage: plugins/usage.md
       - Developing plug-ins: plugins/development.md
