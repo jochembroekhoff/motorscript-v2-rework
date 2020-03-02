@@ -1,8 +1,23 @@
 site_name: MotorScript
 
+theme: windmill
+
 nav:
   - Home: index.md
   - Introduction: introduction.md
   - Configuration: configuration.md
+  - Plug-ins:
+      - Usage: plugins/usage.md
+      - Developing plug-ins: plugins/development.md
   - Internals:
+      - Compiler organization:
+        - Structure overview: internals/organization/overview.md
+        - cli: internals/organization/cli.md
+        - buildmgr: internals/organization/buildmgr.md
+        - discover: internals/organization/discover.md
+        - lexparse: internals/organization/lexparse.md
+        - front: internals/organization/front.md
+        - check: internals/organization/check.md
+        - transform: internals/organization/transform.md
+        - gen: internals/organization/gen.md
       - References: internals/references.md
