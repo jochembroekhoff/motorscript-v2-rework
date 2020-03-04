@@ -7,6 +7,7 @@ import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
 import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.front.visitor.FunctionVisitor
+import nl.jochembroekhoff.motorscript.front.visitor.VisitorContext
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
@@ -36,7 +37,8 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                         val funcName = funcDecl.identifier().text
                         logger.debug { "Processing func '$funcName'" }
                         val funcGraph = SimpleDirectedGraph<IRVertex, IREdge>(IREdge::class.java)
-                        val funcVisitor = FunctionVisitor(ectx, funcGraph)
+                        val vctx = VisitorContext(ectx, funcGraph)
+                        val funcVisitor = FunctionVisitor(vctx)
                         val entryPoint = funcVisitor.visitFunctionBody(funcDecl.functionBody())
 
                         // TMP

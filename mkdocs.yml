@@ -2,6 +2,9 @@ site_name: MotorScript
 
 theme: windmill
 
+extra:
+  version: development
+
 nav:
   - Home: index.md
   - Introduction: introduction.md

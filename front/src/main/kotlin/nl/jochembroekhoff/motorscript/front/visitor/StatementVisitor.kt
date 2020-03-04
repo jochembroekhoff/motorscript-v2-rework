@@ -1,18 +1,13 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
-import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
 import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
 import nl.jochembroekhoff.motorscript.ir.expression.IRRef
 import nl.jochembroekhoff.motorscript.ir.flow.statement.*
-import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
-import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
-import org.jgrapht.Graph
 
-class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
-    MOSExtendedVisitor<IRStatementVertex>(ectx, g) {
+class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVertex>(vctx) {
     override fun visitDeclarationStatement(ctx: MOSParser.DeclarationStatementContext): IRStatementVertex {
         // TODO: process modifiers, enforced type & all stuff
         // TODO: increment ref scope
@@ -25,7 +20,7 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
 
         return gMkV { IRAssign() }.also {
             it.gDependOn(gMkV { IRRef(declTargetCtx.identifier().text) })
-            it.gDependOn(ExpressionVisitor(ectx, g).visitExpression(ctx.expression()))
+            it.gDependOn(ExpressionVisitor(vctx).visitExpression(ctx.expression()))
         }
     }
 
@@ -40,7 +35,7 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
     override fun visitForStatement(ctx: MOSParser.ForStatementContext): IRStatementVertex {
         ctx.forInfinite()?.also { forInfCtx ->
             val forV = gMkV { IRFor(IRFor.Type.INFINITE) }
-            val block = BlockVisitor(ectx, g).visitBlock(forInfCtx.block())
+            val block = BlockVisitor(vctx).visitBlock(forInfCtx.block())
             forV.gBranchTo(block.first)
             block.second.gFollowedBy(forV)
             return forV
@@ -51,10 +46,10 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         }
 
         ctx.forWhile()?.also { forWhileCtx ->
-            val conditionV = ExpressionVisitor(ectx, g).visitExpression(forWhileCtx.expression())
+            val conditionV = ExpressionVisitor(vctx).visitExpression(forWhileCtx.expression())
             val forV = gMkV { IRFor(IRFor.Type.WHILE) }
             forV.gDependOn(conditionV)
-            val block = BlockVisitor(ectx, g).visitBlock(forWhileCtx.block())
+            val block = BlockVisitor(vctx).visitBlock(forWhileCtx.block())
             forV.gBranchTo(block.first)
             block.second.gFollowedBy(forV)
             return forV
@@ -70,8 +65,8 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
             exprCtx: MOSParser.ExpressionContext,
             blockCtx: MOSParser.BlockContext
         ): Pair<IRExpressionVertex, Pair<IRStatementVertex, IRStatementVertex>> {
-            val conditionExpr = ExpressionVisitor(ectx, g).visitExpression(exprCtx)
-            val block = BlockVisitor(ectx, g).visitBlock(blockCtx)
+            val conditionExpr = ExpressionVisitor(vctx).visitExpression(exprCtx)
+            val block = BlockVisitor(vctx).visitBlock(blockCtx)
             return Pair(conditionExpr, block)
         }
 
@@ -84,7 +79,7 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         }
 
         ctx.ifElseBranch()?.also { elseBranchCtx ->
-            val elseBlock = BlockVisitor(ectx, g).visitBlock(elseBranchCtx.block())
+            val elseBlock = BlockVisitor(vctx).visitBlock(elseBranchCtx.block())
             ifStmtV.gBranchTo(elseBlock.first)
         }
 
@@ -100,7 +95,7 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         return if (exprCtx == null) {
             gMkV { IRReturn(IRReturn.Type.VOID) }
         } else {
-            val exprVisitor = ExpressionVisitor(ectx, g)
+            val exprVisitor = ExpressionVisitor(vctx)
             val exprV = exprVisitor.visitExpression(exprCtx)
             gMkV { IRReturn(IRReturn.Type.EXPR) }.also { it.gDependOn(exprV) }
         }
@@ -116,7 +111,7 @@ class StatementVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
 
     override fun visitExpressionStatement(ctx: MOSParser.ExpressionStatementContext): IRStatementVertex {
         val exprStmtV = gMkV { IRExpressionStatement() }
-        val exprVisitor = ExpressionVisitor(ectx, g)
+        val exprVisitor = ExpressionVisitor(vctx)
         val exprV = exprVisitor.visitExpression(ctx.expression())
         exprStmtV.gDependOn(exprV)
         return exprStmtV

@@ -1,18 +1,13 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
-import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.front.Messages
-import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
-import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
-import org.jgrapht.Graph
 
 /**
  * See function [visitExpressionListNamed] for more details.
  */
-class ExpressionListNamedVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
-    MOSExtendedVisitor<Map<String, IRExpressionVertex>>(ectx, g) {
+class ExpressionListNamedVisitor(vctx: VisitorContext) : MOSExtendedVisitor<Map<String, IRExpressionVertex>>(vctx) {
     /**
      * Visit a named expression list. When a duplicate is found (i.e. when there are multiple arguments specified for
      * the same parameter), an error message will be dispatched to the current message pipe.
@@ -38,12 +33,12 @@ class ExpressionListNamedVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREd
             if (name in seenNames) {
                 if (name !in duplicates) {
                     duplicates += name
-                    ectx.execution.messagePipe.dispatch(Messages.duplicateNamedArgument.new("Argument for parameter $name specified more than once."))
+                    vctx.ectx.execution.messagePipe.dispatch(Messages.duplicateNamedArgument.new("Argument for parameter $name specified more than once."))
                 }
                 return@forEach
             }
             seenNames += name
-            val expr = ExpressionVisitor(ectx, g).visitExpression(exprCtx)
+            val expr = ExpressionVisitor(vctx).visitExpression(exprCtx)
             res[name] = expr
         }
 

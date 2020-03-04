@@ -1,25 +1,20 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
-import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
 import nl.jochembroekhoff.motorscript.common.extensions.collections.whenNotEmpty
 import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
 import nl.jochembroekhoff.motorscript.ir.expression.*
-import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
-import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 import nl.jochembroekhoff.motorscript.lexparse.util.LPLiteralUtil
-import org.jgrapht.Graph
 
-class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
-    MOSExtendedVisitor<IRExpressionVertex>(ectx, g) {
+class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionVertex>(vctx) {
     /**
      * Expression base visitor. Handles all expression combination cases, e.g. postfix operators, conditional
      * combination and finding.
      */
     override fun visitExpression(ctx: MOSParser.ExpressionContext): IRExpressionVertex {
-        fun getExprV(i: Int = 0) = ExpressionVisitor(ectx, g).visitExpression(ctx.expression()[i])
+        fun getExprV(i: Int = 0) = ExpressionVisitor(vctx).visitExpression(ctx.expression()[i])
 
         // This 'flat' finding could just be replaced with recursive finding, will produce the same IR in the end
         ctx.find().whenNotEmpty { findCtxs ->
@@ -30,7 +25,7 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
             findCtxs.forEach { findCtx ->
                 findCtx.findIndex()?.also { findIndexCtx ->
                     val vFind = gMkV { IRFind(IRFind.Type.INDEX) }
-                    val expressionVisitor = ExpressionVisitor(ectx, g)
+                    val expressionVisitor = ExpressionVisitor(vctx)
                     val expr = expressionVisitor.visitExpression(findIndexCtx.expression())
                     vFind.gDependOn(expr) // Index value dependency
                     vFind.gDependOn(curr) // Ensure parts chain
@@ -61,12 +56,12 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
             ivkV.gDependOn(targetV)
             ivkCtx.arguments().also { argsCtx ->
                 argsCtx.expressionList()?.also { exprListCtx ->
-                    ExpressionListVisitor(ectx, g).visitExpressionList(exprListCtx).forEach {
+                    ExpressionListVisitor(vctx).visitExpressionList(exprListCtx).forEach {
                         ivkV.gDependOn(it)
                     }
                 }
                 argsCtx.expressionListNamed()?.also { exprListNamedCtx ->
-                    ExpressionListNamedVisitor(ectx, g).visitExpressionListNamed(exprListNamedCtx)
+                    ExpressionListNamedVisitor(vctx).visitExpressionListNamed(exprListNamedCtx)
                         .forEach { (_, argV) ->
                             // TODO: Set name in dependency edge
                             ivkV.gDependOn(argV)
@@ -142,7 +137,7 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
     }
 
     override fun visitLiteral(ctx: MOSParser.LiteralContext): IRLiteral<*> {
-        val literalVisitor = LiteralVisitor(ectx, g)
+        val literalVisitor = LiteralVisitor(vctx)
         return literalVisitor.visit(ctx)
     }
 
@@ -159,7 +154,7 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
         }
 
         ctx.properties()?.also { propsCtx ->
-            val propsVisitor = PropertiesVisitor(ectx, g)
+            val propsVisitor = PropertiesVisitor(vctx)
             val props = propsVisitor.visitProperties(propsCtx)
             // TODO: Attach props
         }
@@ -169,11 +164,11 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
 
     override fun visitResource(ctx: MOSParser.ResourceContext): IRResource {
         val resV = gMkV { IRResource() }
-        val refVisitor = RefVisitor(ectx, g)
+        val refVisitor = RefVisitor(vctx)
         val refV = refVisitor.visitRef(ctx.ref())
         resV.gDependOn(refV)
         ctx.properties()?.also { propsCtx ->
-            val propsVisitor = PropertiesVisitor(ectx, g)
+            val propsVisitor = PropertiesVisitor(vctx)
             val props = propsVisitor.visitProperties(propsCtx)
             // TODO: Attach props
         }
@@ -197,7 +192,7 @@ class ExpressionVisitor(ectx: ExecutionContext, g: Graph<IRVertex, IREdge>) :
     }
 
     override fun visitRef(ctx: MOSParser.RefContext): IRRef {
-        val refVisitor = RefVisitor(ectx, g)
+        val refVisitor = RefVisitor(vctx)
         return refVisitor.visitRef(ctx)
     }
 

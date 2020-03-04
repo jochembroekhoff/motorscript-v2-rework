@@ -121,6 +121,7 @@ This section tries to make clear how this differentiation is dealt with internal
 resolving partial references.
 
 schets:
+
 - top-level declaratie kan alleen refereren aan _andere_ top-level items
 - refs binnen een resource of tag gebruiken niet de lokale scope. als je toch aan een constante een resource of tag
   wilt toewijzen, kun je er later gewoon aan refereren zonder dollar of hash geprefixt

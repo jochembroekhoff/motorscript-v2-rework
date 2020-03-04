@@ -17,5 +17,5 @@ If the description of all these features isn't enough to get started, there are 
     - For loops (includes the 'while-construct' too)
     - Switch statements
 - Augmented target selectors
-- Inline `execute` execute support
+- Inline `execute` support
 - Generators
