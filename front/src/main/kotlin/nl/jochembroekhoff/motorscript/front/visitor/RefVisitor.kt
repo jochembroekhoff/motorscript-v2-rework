@@ -12,7 +12,7 @@ class RefVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRRef>(vctx) {
         if (ctx.Colon() == null) {
             throw FeatureUnimplementedExecutionException("Local references not implemented yet.")
         } else {
-            return gMkV { IRRef("LEFTOFF") }
+            return gMkV { IRRef("LEFTOFF", vctx.rctx) }
         }
     }
 }

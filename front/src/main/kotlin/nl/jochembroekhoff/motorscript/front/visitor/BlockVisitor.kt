@@ -14,7 +14,7 @@ class BlockVisitor(vctx: VisitorContext) : MOSExtendedVisitor<Pair<IRStatementVe
         var firstStatement: IRStatementVertex? = null
         var lastStatement: IRStatementVertex? = null
         statements.forEach { stmtCtx ->
-            val statementVisitor = StatementVisitor(vctx)
+            val statementVisitor = StatementVisitor(vctxNext())
             val statement = statementVisitor.visit(stmtCtx)
             lastStatement?.gFollowedBy(statement)
             lastStatement = statement

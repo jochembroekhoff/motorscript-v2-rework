@@ -9,7 +9,7 @@ class PropertiesVisitor(vctx: VisitorContext) : MOSExtendedVisitor<List<Pair<Str
         return ctx.property().map { propCtx ->
             val name = (propCtx.identifier()
                 ?: throw FeatureUnimplementedExecutionException("Key-value properties only supported currently.")).text
-            val exprV = ExpressionVisitor(vctx).visitExpression(propCtx.expression())
+            val exprV = ExpressionVisitor(vctxNext()).visitExpression(propCtx.expression())
             Pair(name, exprV)
         }
     }

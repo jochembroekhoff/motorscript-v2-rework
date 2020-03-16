@@ -11,13 +11,13 @@ class FunctionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IREntry>(vctx) 
         ctx.expressionStatement()?.also { exprStmtCtx ->
             val retStmt = gMkV { IRReturn(IRReturn.Type.EXPR) }
             vctx.g.addEdge(entryPoint, retStmt)
-            val exprVisitor = ExpressionVisitor(vctx)
+            val exprVisitor = ExpressionVisitor(vctxNext())
             val expr = exprVisitor.visitExpression(exprStmtCtx.expression())
             retStmt.gDependOn(expr)
         }
 
         ctx.block()?.also { blockCtx ->
-            val blockVisitor = BlockVisitor(vctx)
+            val blockVisitor = BlockVisitor(vctxNext())
             val (blockEntry, blockExit) = blockVisitor.visitBlock(blockCtx)
             entryPoint.gFollowedBy(blockEntry)
         }

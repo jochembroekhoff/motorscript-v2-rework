@@ -20,7 +20,7 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
 
         return gMkV { IRAssign() }.also {
             it.gDependOn(gMkV { IRRef(declTargetCtx.identifier().text) })
-            it.gDependOn(ExpressionVisitor(vctx).visitExpression(ctx.expression()))
+            it.gDependOn(ExpressionVisitor(vctxNext()).visitExpression(ctx.expression()))
         }
     }
 
@@ -35,7 +35,7 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
     override fun visitForStatement(ctx: MOSParser.ForStatementContext): IRStatementVertex {
         ctx.forInfinite()?.also { forInfCtx ->
             val forV = gMkV { IRFor(IRFor.Type.INFINITE) }
-            val block = BlockVisitor(vctx).visitBlock(forInfCtx.block())
+            val block = BlockVisitor(vctxNext()).visitBlock(forInfCtx.block())
             forV.gBranchTo(block.first)
             block.second.gFollowedBy(forV)
             return forV
@@ -46,10 +46,10 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         }
 
         ctx.forWhile()?.also { forWhileCtx ->
-            val conditionV = ExpressionVisitor(vctx).visitExpression(forWhileCtx.expression())
+            val conditionV = ExpressionVisitor(vctxNext()).visitExpression(forWhileCtx.expression())
             val forV = gMkV { IRFor(IRFor.Type.WHILE) }
             forV.gDependOn(conditionV)
-            val block = BlockVisitor(vctx).visitBlock(forWhileCtx.block())
+            val block = BlockVisitor(vctxNext()).visitBlock(forWhileCtx.block())
             forV.gBranchTo(block.first)
             block.second.gFollowedBy(forV)
             return forV
@@ -65,8 +65,8 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
             exprCtx: MOSParser.ExpressionContext,
             blockCtx: MOSParser.BlockContext
         ): Pair<IRExpressionVertex, Pair<IRStatementVertex, IRStatementVertex>> {
-            val conditionExpr = ExpressionVisitor(vctx).visitExpression(exprCtx)
-            val block = BlockVisitor(vctx).visitBlock(blockCtx)
+            val conditionExpr = ExpressionVisitor(vctxNext()).visitExpression(exprCtx)
+            val block = BlockVisitor(vctxNext()).visitBlock(blockCtx)
             return Pair(conditionExpr, block)
         }
 
@@ -79,7 +79,7 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         }
 
         ctx.ifElseBranch()?.also { elseBranchCtx ->
-            val elseBlock = BlockVisitor(vctx).visitBlock(elseBranchCtx.block())
+            val elseBlock = BlockVisitor(vctxNext()).visitBlock(elseBranchCtx.block())
             ifStmtV.gBranchTo(elseBlock.first)
         }
 
@@ -95,7 +95,7 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         return if (exprCtx == null) {
             gMkV { IRReturn(IRReturn.Type.VOID) }
         } else {
-            val exprVisitor = ExpressionVisitor(vctx)
+            val exprVisitor = ExpressionVisitor(vctxNext())
             val exprV = exprVisitor.visitExpression(exprCtx)
             gMkV { IRReturn(IRReturn.Type.EXPR) }.also { it.gDependOn(exprV) }
         }
@@ -111,7 +111,7 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
 
     override fun visitExpressionStatement(ctx: MOSParser.ExpressionStatementContext): IRStatementVertex {
         val exprStmtV = gMkV { IRExpressionStatement() }
-        val exprVisitor = ExpressionVisitor(vctx)
+        val exprVisitor = ExpressionVisitor(vctxNext())
         val exprV = exprVisitor.visitExpression(ctx.expression())
         exprStmtV.gDependOn(exprV)
         return exprStmtV

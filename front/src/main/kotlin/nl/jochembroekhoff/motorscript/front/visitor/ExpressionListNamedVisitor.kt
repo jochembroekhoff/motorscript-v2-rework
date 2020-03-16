@@ -38,7 +38,7 @@ class ExpressionListNamedVisitor(vctx: VisitorContext) : MOSExtendedVisitor<Map<
                 return@forEach
             }
             seenNames += name
-            val expr = ExpressionVisitor(vctx).visitExpression(exprCtx)
+            val expr = ExpressionVisitor(vctxNext()).visitExpression(exprCtx)
             res[name] = expr
         }
 

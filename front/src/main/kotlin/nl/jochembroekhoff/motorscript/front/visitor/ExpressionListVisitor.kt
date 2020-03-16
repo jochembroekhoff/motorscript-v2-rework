@@ -5,6 +5,6 @@ import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 
 class ExpressionListVisitor(vctx: VisitorContext) : MOSExtendedVisitor<List<IRExpressionVertex>>(vctx) {
     override fun visitExpressionList(ctx: MOSParser.ExpressionListContext): List<IRExpressionVertex> {
-        return ctx.expression().map { ExpressionVisitor(vctx).visitExpression(it) }
+        return ctx.expression().map { ExpressionVisitor(vctxNext()).visitExpression(it) }
     }
 }

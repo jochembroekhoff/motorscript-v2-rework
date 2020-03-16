@@ -32,7 +32,7 @@ func example -> Int
     var a = 1
     return ++a
 }
-``` 
+```
 
 The expression `++a` references the local variable `a`. There is simply only one character, namely _a_ that indicates
 the reference. Since any identifier will be transformed into a reference, simply a non-keyword word is also a reference.
@@ -120,23 +120,61 @@ As seen above, references pop up in a lot of places. But as described, not all r
 This section tries to make clear how this differentiation is dealt with internally. It's a step up to the section about
 resolving partial references.
 
-schets:
+During IR construction, a certain "reference context" is being kept track of. For more in-depth details about the IR
+construction and different contexes, see the documentation about the ["front" compiler step](./organization/front.md).
 
-- top-level declaratie kan alleen refereren aan _andere_ top-level items
-- refs binnen een resource of tag gebruiken niet de lokale scope. als je toch aan een constante een resource of tag
-  wilt toewijzen, kun je er later gewoon aan refereren zonder dollar of hash geprefixt
-- top-level expressions kunnen alleen refereren aan items die de `builtin` modifier dragen
-- partial references in `use`-statements refereren standaard naar een item in de volgende namespaces (volgorde van
-  prioriteit): `prelude`, `minecraft`, `<src file ns>`. maar, boven deze namespace-prioriteiten is de relatieve import
-  belangrijker. daarom kun je dus bijvoorbeeld `use text\tellraw` overriden als je relatief t.o.v. het bronbestand een
-  item in de namespace hebt dat eindigt met `text\tellraw`.
-- andere references (alles buitenom het `use`-gebied dus), hebben nog een eigen 'resolve container' waarin gaandeweg
+Now, there are certain constrains for different types of references. This is mostly where the reference differentiation
+comes from. This is a list of these constraints:
+
+- References directly from a resource or tag don't use the local file scope, but the global scope. This is because it's
+  (currently) not possible to define custom resources or define tags directly from a source file. This is also because
+  it makes it possible to have a variable name that has the same name as, for example, a certain predefined entity.
+- Top-level expressions can only refer to items with the `builtin` modifier (mostly concerning functions). This is to
+  prevent reference cycles (for example a top-level expression refers to a function that contains a reference to the
+  variable that would have the value assigned that would be returned by that function).
+- Partial references from whithin `use` statements don't follow the general rules for resolving partial references, but
+  have their own rules. What these rules exactly are, is described in the next subsection.
+
+These three different kinds reference are internally recogized by (TODO).
 
 TODO: `text\tellraw(@s, "Hello")` zou moeten werken, ook al heb je niet expliciet dat ge&iuml;mporteerd
 
 # Resolving of partial references
 
 Only partial references need resolving at all. However, the thing is that in practice most references are actually
-partial.
+partial. Since we now know that not all partial references are the same, different variations require different
+treatment. However, the general idea behind this resolving is common to all of them.
+
+## From within a `use` statement
+
+References from within `use` statements are an exception. As stated earlier, they have their own rules. This may not be
+that surprising, because in the end these references in turn will decide to what other references in the file may refer
+to.
+
+The set of possible items such a reference can refer to, consists of all public items from all dependencies (so, that
+also includes the standard library), but also all public _and_ internal items from the current project.
+
+The list of internal items is constructed after the IR has been generated. After successfull IR generation, it is known
+which items will be made available, but they're all still missing type information. This type information will be
+inferred and known later on.
+
+Now, since we're talking about partial references, one of the tasks is to figure out which namespace is going to be used
+in the concrete reference. And that really depend on what the user points to. Consider the following statement:
+
+```motorscript
+use text\say
+```
+
+Now, from experience you might conclude that this is meant to point to `minecraft:text\tellraw`. But you wouldn't be
+sure about that without taking information about the context into consideration. Because, what happens when there is an
+item in the current project that is relative to the file in which this statement was written, that happens to have the
+same name? Will that make a clash, or will that make the resolving impossible, or is that behavior not defined?
+Well, (TODO).
+
+## Other variations
 
 ...
+
+TODO: from imports: `prelude`, `minecraft`, `<src file ns>`. maar, boven deze namespace-prioriteiten is de relatieve import
+  belangrijker. daarom kun je dus bijvoorbeeld `use text\tellraw` overriden als je relatief t.o.v. het bronbestand een
+  item in de namespace hebt dat eindigt met `text\tellraw`.

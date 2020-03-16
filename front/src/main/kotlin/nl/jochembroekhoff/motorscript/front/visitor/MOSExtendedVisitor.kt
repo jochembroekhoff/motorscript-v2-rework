@@ -50,4 +50,18 @@ abstract class MOSExtendedVisitor<T>(val vctx: VisitorContext) : MOSBaseVisitor<
             }
         }
     }
+
+    /**
+     * Get a [VisitorContext] for the next visitor instances, for after assignment.
+     */
+    protected fun vctxNext(): VisitorContext {
+        return vctx.copy(rctx = vctx.rctx.next())
+    }
+
+    /**
+     * Get a [VisitorContext] for a visitor that will visit a sub scope.
+     */
+    protected fun vctxNested(): VisitorContext {
+        return vctx.copy(rctx = vctx.rctx.nested())
+    }
 }

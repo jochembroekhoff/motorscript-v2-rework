@@ -14,7 +14,7 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
      * combination and finding.
      */
     override fun visitExpression(ctx: MOSParser.ExpressionContext): IRExpressionVertex {
-        fun getExprV(i: Int = 0) = ExpressionVisitor(vctx).visitExpression(ctx.expression()[i])
+        fun getExprV(i: Int = 0) = ExpressionVisitor(vctxNext()).visitExpression(ctx.expression()[i])
 
         // This 'flat' finding could just be replaced with recursive finding, will produce the same IR in the end
         ctx.find().whenNotEmpty { findCtxs ->
@@ -25,7 +25,7 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
             findCtxs.forEach { findCtx ->
                 findCtx.findIndex()?.also { findIndexCtx ->
                     val vFind = gMkV { IRFind(IRFind.Type.INDEX) }
-                    val expressionVisitor = ExpressionVisitor(vctx)
+                    val expressionVisitor = ExpressionVisitor(vctxNext())
                     val expr = expressionVisitor.visitExpression(findIndexCtx.expression())
                     vFind.gDependOn(expr) // Index value dependency
                     vFind.gDependOn(curr) // Ensure parts chain
@@ -56,12 +56,12 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
             ivkV.gDependOn(targetV)
             ivkCtx.arguments().also { argsCtx ->
                 argsCtx.expressionList()?.also { exprListCtx ->
-                    ExpressionListVisitor(vctx).visitExpressionList(exprListCtx).forEach {
+                    ExpressionListVisitor(vctxNext()).visitExpressionList(exprListCtx).forEach {
                         ivkV.gDependOn(it)
                     }
                 }
                 argsCtx.expressionListNamed()?.also { exprListNamedCtx ->
-                    ExpressionListNamedVisitor(vctx).visitExpressionListNamed(exprListNamedCtx)
+                    ExpressionListNamedVisitor(vctxNext()).visitExpressionListNamed(exprListNamedCtx)
                         .forEach { (_, argV) ->
                             // TODO: Set name in dependency edge
                             ivkV.gDependOn(argV)
@@ -137,7 +137,7 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
     }
 
     override fun visitLiteral(ctx: MOSParser.LiteralContext): IRLiteral<*> {
-        val literalVisitor = LiteralVisitor(vctx)
+        val literalVisitor = LiteralVisitor(vctxNext())
         return literalVisitor.visit(ctx)
     }
 
@@ -154,7 +154,7 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
         }
 
         ctx.properties()?.also { propsCtx ->
-            val propsVisitor = PropertiesVisitor(vctx)
+            val propsVisitor = PropertiesVisitor(vctxNext())
             val props = propsVisitor.visitProperties(propsCtx)
             // TODO: Attach props
         }
@@ -164,11 +164,11 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
 
     override fun visitResource(ctx: MOSParser.ResourceContext): IRResource {
         val resV = gMkV { IRResource() }
-        val refVisitor = RefVisitor(vctx)
+        val refVisitor = RefVisitor(vctxNext())
         val refV = refVisitor.visitRef(ctx.ref())
         resV.gDependOn(refV)
         ctx.properties()?.also { propsCtx ->
-            val propsVisitor = PropertiesVisitor(vctx)
+            val propsVisitor = PropertiesVisitor(vctxNext())
             val props = propsVisitor.visitProperties(propsCtx)
             // TODO: Attach props
         }
@@ -192,7 +192,7 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
     }
 
     override fun visitRef(ctx: MOSParser.RefContext): IRRef {
-        val refVisitor = RefVisitor(vctx)
+        val refVisitor = RefVisitor(vctxNext())
         return refVisitor.visitRef(ctx)
     }
 

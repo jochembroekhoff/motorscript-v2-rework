@@ -10,6 +10,7 @@ import nl.jochembroekhoff.motorscript.front.visitor.FunctionVisitor
 import nl.jochembroekhoff.motorscript.front.visitor.VisitorContext
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
+import nl.jochembroekhoff.motorscript.ir.refs.ReferenceContext
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 import nl.jochembroekhoff.motorscript.lexparse.util.SourceReferenceAttachmentUtil
 import org.jgrapht.graph.SimpleDirectedGraph
@@ -37,7 +38,8 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                         val funcName = funcDecl.identifier().text
                         logger.debug { "Processing func '$funcName'" }
                         val funcGraph = SimpleDirectedGraph<IRVertex, IREdge>(IREdge::class.java)
-                        val vctx = VisitorContext(ectx, funcGraph)
+                        // TODO: given ReferenceContext should be populated with imports
+                        val vctx = VisitorContext(ectx, funcGraph, ReferenceContext())
                         val funcVisitor = FunctionVisitor(vctx)
                         val entryPoint = funcVisitor.visitFunctionBody(funcDecl.functionBody())
 
