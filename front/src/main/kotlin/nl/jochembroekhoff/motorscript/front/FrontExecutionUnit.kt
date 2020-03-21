@@ -14,9 +14,9 @@ import nl.jochembroekhoff.motorscript.ir.refs.ReferenceContext
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 import nl.jochembroekhoff.motorscript.lexparse.util.SourceReferenceAttachmentUtil
 import org.jgrapht.graph.SimpleDirectedGraph
-import org.jgrapht.io.ComponentNameProvider
-import org.jgrapht.io.DOTExporter
-import org.jgrapht.io.IntegerComponentNameProvider
+import org.jgrapht.nio.AttributeType
+import org.jgrapht.nio.DefaultAttribute
+import org.jgrapht.nio.dot.DOTExporter
 import java.io.File
 
 class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptContext>) : ExecutionUnit<Unit>() {
@@ -44,22 +44,23 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                         val entryPoint = funcVisitor.visitFunctionBody(funcDecl.functionBody())
 
                         // TMP
-                        val exporter = DOTExporter<IRVertex, IREdge>(
-                            IntegerComponentNameProvider(),
-                            ComponentNameProvider { component ->
-                                // Could move to .toString()
-                                val base = "${component.contentClass()} : ${component::class.java.simpleName}"
-                                val description = component.contentDescription()
-                                if (description.isNotBlank()) {
+                        val exporter = DOTExporter<IRVertex, IREdge>().apply {
+                            setVertexAttributeProvider { vertex ->
+                                val base = "${vertex.contentClass()} : ${vertex::class.java.simpleName}"
+                                val description = vertex.contentDescription()
+                                val label = if (description.isNotBlank()) {
                                     "$base\n$description"
                                 } else {
                                     base
                                 }
-                            },
-                            ComponentNameProvider { edge ->
-                                edge.type.toString()
+                                mapOf("label" to DefaultAttribute(label, AttributeType.STRING))
                             }
-                        )
+                            setEdgeAttributeProvider { edge ->
+                                val label = edge.type.toString()
+                                mapOf("label" to DefaultAttribute(label, AttributeType.STRING))
+                            }
+                        }
+
                         exporter.exportGraph(funcGraph, File(tmpFolder, "$funcName.dot"))
                     }
 
