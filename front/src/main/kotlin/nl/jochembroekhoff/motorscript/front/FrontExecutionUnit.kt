@@ -8,13 +8,15 @@ import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.front.visitor.FunctionVisitor
 import nl.jochembroekhoff.motorscript.front.visitor.VisitorContext
+import nl.jochembroekhoff.motorscript.ir.flow.misc.IREntry
+import nl.jochembroekhoff.motorscript.ir.flow.statement.IRStatementVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
+import nl.jochembroekhoff.motorscript.ir.graph.IREdgeType
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.ir.refs.ReferenceContext
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 import nl.jochembroekhoff.motorscript.lexparse.util.SourceReferenceAttachmentUtil
 import org.jgrapht.graph.SimpleDirectedGraph
-import org.jgrapht.nio.AttributeType
 import org.jgrapht.nio.DefaultAttribute
 import org.jgrapht.nio.dot.DOTExporter
 import java.io.File
@@ -53,11 +55,32 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                                 } else {
                                     base
                                 }
-                                mapOf("label" to DefaultAttribute(label, AttributeType.STRING))
+                                val shape = when (vertex) {
+                                    is IREntry -> "hexagon"
+                                    is IRStatementVertex -> "box"
+                                    else -> "ellipse"
+                                }
+                                mapOf(
+                                    "label" to DefaultAttribute.createAttribute(label),
+                                    "shape" to DefaultAttribute.createAttribute(shape)
+                                )
                             }
                             setEdgeAttributeProvider { edge ->
                                 val label = edge.type.toString()
-                                mapOf("label" to DefaultAttribute(label, AttributeType.STRING))
+                                val color = when (edge.type) {
+                                    IREdgeType.FLOW -> "green"
+                                    IREdgeType.BRANCH -> "aqua"
+                                    else -> "black"
+                                }
+                                val style = when (edge.type) {
+                                    IREdgeType.DEPENDENCY -> "dotted"
+                                    else -> ""
+                                }
+                                mapOf(
+                                    "label" to DefaultAttribute.createAttribute(label),
+                                    "color" to DefaultAttribute.createAttribute(color),
+                                    "style" to DefaultAttribute.createAttribute(style)
+                                )
                             }
                         }
 
