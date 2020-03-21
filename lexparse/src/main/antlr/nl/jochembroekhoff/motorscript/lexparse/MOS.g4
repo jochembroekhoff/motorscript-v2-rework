@@ -349,7 +349,7 @@ expressionList
     ;
 
 expressionListNamed
-    : ( Comma identifier Equals expression )+
+    : ( Comma identifier Equals expression )+ Comma?
     ;
 
 invocation

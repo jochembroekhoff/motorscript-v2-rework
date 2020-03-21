@@ -39,7 +39,7 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                         logger.debug { "Processing func '$funcName'" }
                         val funcGraph = SimpleDirectedGraph<IRVertex, IREdge>(IREdge::class.java)
                         // TODO: given ReferenceContext should be populated with imports
-                        val vctx = VisitorContext(ectx, funcGraph, ReferenceContext())
+                        val vctx = VisitorContext(ectx, funcGraph, ReferenceContext(k.base))
                         val funcVisitor = FunctionVisitor(vctx)
                         val entryPoint = funcVisitor.visitFunctionBody(funcDecl.functionBody())
 

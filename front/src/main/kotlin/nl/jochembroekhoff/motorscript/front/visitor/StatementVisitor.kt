@@ -2,7 +2,7 @@ package nl.jochembroekhoff.motorscript.front.visitor
 
 import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
 import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
-import nl.jochembroekhoff.motorscript.ir.expression.IRRef
+import nl.jochembroekhoff.motorscript.ir.expression.IRPartialRef
 import nl.jochembroekhoff.motorscript.ir.flow.statement.*
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
@@ -19,7 +19,7 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         }
 
         return gMkV { IRAssign() }.also {
-            it.gDependOn(gMkV { IRRef(declTargetCtx.identifier().text) })
+            it.gDependOn(gMkV { IRPartialRef(listOf(declTargetCtx.identifier().text), vctx.rctx) })
             it.gDependOn(ExpressionVisitor(vctxNext()).visitExpression(ctx.expression()))
         }
     }

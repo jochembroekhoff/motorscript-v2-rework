@@ -5,7 +5,7 @@ class PackIndexBuilder {
     private val root: MutableMap<NamespaceTypeCombo, MutableMap<List<String>, PackEntry>> = HashMap()
 
     fun addEntry(entry: PackEntry) {
-        root.computeIfAbsent(NamespaceTypeCombo(entry.namespace, entry.type)) { HashMap() }[entry.nameBase + entry.name] = entry
+        root.computeIfAbsent(NamespaceTypeCombo(entry.base.namespace, entry.type)) { HashMap() }[entry.base.name + entry.name] = entry
     }
 
     fun build(): PackIndex {

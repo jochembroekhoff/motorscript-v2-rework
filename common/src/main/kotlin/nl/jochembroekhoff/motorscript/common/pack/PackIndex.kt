@@ -5,6 +5,7 @@ import nl.jochembroekhoff.motorscript.common.extensions.path.allNames
 import nl.jochembroekhoff.motorscript.common.extensions.path.extension
 import nl.jochembroekhoff.motorscript.common.extensions.path.stem
 import nl.jochembroekhoff.motorscript.common.extensions.sequences.dropNull
+import nl.jochembroekhoff.motorscript.common.ref.NSID
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Stream
@@ -56,7 +57,9 @@ class PackIndex {
                             return@map null
                         }
 
-                        return@map PackEntry(type, namespace, name.dropLast(1), name.last(), extension).also {
+                        val base = NSID(namespace, name.dropLast(1))
+
+                        return@map PackEntry(type, base, name.last(), extension).also {
                             logger.trace { "Pack entry: $it" }
                         }
                     }

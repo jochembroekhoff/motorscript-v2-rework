@@ -7,5 +7,7 @@ module motorscript.ir {
 
     requires kotlin.stdlib;
 
+    requires motorscript.common;
+
     requires transitive org.jgrapht.core;
 }
