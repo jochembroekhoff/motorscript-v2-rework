@@ -4,6 +4,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import mu.KLogging
+import nl.jochembroekhoff.motorscript.check.CheckExecutionUnit
 import nl.jochembroekhoff.motorscript.common.buildspec.BuildSpec
 import nl.jochembroekhoff.motorscript.common.execution.Execution
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
@@ -70,14 +71,16 @@ object BuildManager : KLogging() {
         }
 
         if (frontRes !is Ok) {
-            logger.debug { "Generic build execution part failed, see message pipe. Result: $frontRes" }
+            logger.info { "Generic build execution part failed, see message pipe. Result: $frontRes" }
             return false
         }
 
         logger.trace { "Generic build execution part completed successfully. Heading over to target-specific parts" }
 
         execution.buildSpec.targets.forEach { target ->
-            logger.debug { "Processing target $target" }
+            logger.info { "Processing target $target" }
+
+            val result = CheckExecutionUnit().executeInContext(executionContext)
         }
 
         return true

@@ -5,6 +5,7 @@ module motorscript.buildmgr {
     requires kotlin.logging;
     requires kotlinx.serialization.runtime;
 
+    requires motorscript.check;
     requires motorscript.common;
     requires motorscript.discover;
     requires motorscript.front;

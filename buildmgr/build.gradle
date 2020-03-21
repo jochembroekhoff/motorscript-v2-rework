@@ -1,4 +1,5 @@
 dependencies {
+    implementation project(':check')
     implementation project(':discover')
     implementation project(':front')
     implementation project(':lexparse')
