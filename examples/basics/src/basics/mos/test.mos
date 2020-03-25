@@ -1,1 +1,8 @@
+use entity\kill
+
 func fatArr => "Hello"
+
+func nonstandard_selector
+{
+    kill(@CustomName)
+}

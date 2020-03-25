@@ -3,8 +3,11 @@ package nl.jochembroekhoff.motorscript.front.visitor
 import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
 import nl.jochembroekhoff.motorscript.common.extensions.collections.whenNotEmpty
 import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
+import nl.jochembroekhoff.motorscript.front.Messages
 import nl.jochembroekhoff.motorscript.ir.expression.*
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
+import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.DependencyMeta
+import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.Slot
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 import nl.jochembroekhoff.motorscript.lexparse.util.LPLiteralUtil
 
@@ -53,18 +56,17 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
         ctx.invocation()?.also { ivkCtx ->
             val ivkV = gMkV { IRInvoke() }
             val targetV = getExprV()
-            ivkV.gDependOn(targetV)
+            ivkV.gDependOn(targetV, DependencyMeta(slot = Slot(Slot.Category.TARGET)))
             ivkCtx.arguments().also { argsCtx ->
                 argsCtx.expressionList()?.also { exprListCtx ->
-                    ExpressionListVisitor(vctxNext()).visitExpressionList(exprListCtx).forEach {
-                        ivkV.gDependOn(it)
+                    ExpressionListVisitor(vctxNext()).visitExpressionList(exprListCtx).forEachIndexed { i, posArgV ->
+                        ivkV.gDependOn(posArgV, DependencyMeta(slot = Slot(Slot.Category.ARG_POSITIONAL, index = i)))
                     }
                 }
                 argsCtx.expressionListNamed()?.also { exprListNamedCtx ->
                     ExpressionListNamedVisitor(vctxNext()).visitExpressionListNamed(exprListNamedCtx)
-                        .forEach { (_, argV) ->
-                            // TODO: Set name in dependency edge
-                            ivkV.gDependOn(argV)
+                        .forEach { (name, argV) ->
+                            ivkV.gDependOn(argV, DependencyMeta(slot = Slot(Slot.Category.AGR_NAMED, name = name)))
                         }
                 }
             }
@@ -120,8 +122,8 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
             val compV = gMkV { IRCompare(comparisionType) }
             val leftV = getExprV(0)
             val rightV = getExprV(1)
-            compV.gDependOn(leftV)
-            compV.gDependOn(rightV)
+            compV.gDependOn(leftV, DependencyMeta(slot = Slot(Slot.Category.SOURCE, name = "L")))
+            compV.gDependOn(rightV, DependencyMeta(slot = Slot(Slot.Category.SOURCE, name = "R")))
             return compV
         }
 
@@ -145,9 +147,16 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
         val targetRepr = ctx.identifier().text
         val target = IRSelectorPrimitive.Target.REVERSE_MAPPING[targetRepr]
         val selectorV = if (target == null) {
+            vctx.ectx.execution.messagePipe.dispatch(
+                Messages.implicitSelectorName.new(
+                    "The selector used a non-default target. It will therefore query all entities with the name ${targetRepr}."
+                )
+            )
             gMkV { IRSelectorPrimitive(IRSelectorPrimitive.Target.ENTITY_ALL) }.also {
-                // TODO: Dispatch info message informing about the fact that a selector was implicitly converted
-                // TODO: Add first dependency to the "name" slot with the value being targetRepr
+                it.gDependOn(
+                    gMkV { IRLiteralString(targetRepr) },
+                    DependencyMeta(slot = Slot(Slot.Category.PROPERTY, name = "name"))
+                )
             }
         } else {
             gMkV { IRSelectorPrimitive(target) }
@@ -155,8 +164,9 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
 
         ctx.properties()?.also { propsCtx ->
             val propsVisitor = PropertiesVisitor(vctxNext())
-            val props = propsVisitor.visitProperties(propsCtx)
-            // TODO: Attach props
+            propsVisitor.visitProperties(propsCtx).forEach { (key, propV) ->
+                selectorV.gDependOn(propV, DependencyMeta(slot = Slot(Slot.Category.PROPERTY, name = key)))
+            }
         }
 
         return selectorV
@@ -166,11 +176,12 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
         val resV = gMkV { IRResource() }
         val refVisitor = RefVisitor(vctxNext())
         val refV = refVisitor.visitRef(ctx.ref())
-        resV.gDependOn(refV)
+        resV.gDependOn(refV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
         ctx.properties()?.also { propsCtx ->
             val propsVisitor = PropertiesVisitor(vctxNext())
-            val props = propsVisitor.visitProperties(propsCtx)
-            // TODO: Attach props
+            propsVisitor.visitProperties(propsCtx).forEach { (key, propV) ->
+                resV.gDependOn(propV, DependencyMeta(slot = Slot(Slot.Category.PROPERTY, name = key)))
+            }
         }
         return resV
     }

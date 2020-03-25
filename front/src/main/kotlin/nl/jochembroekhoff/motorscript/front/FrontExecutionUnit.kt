@@ -66,7 +66,7 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
                                 )
                             }
                             setEdgeAttributeProvider { edge ->
-                                val label = edge.type.toString()
+                                val label = edge.type.toString() + "\n" + edge.meta.toString()
                                 val color = when (edge.type) {
                                     IREdgeType.FLOW -> "green"
                                     IREdgeType.BRANCH -> "aqua"

@@ -5,6 +5,8 @@ import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionExcepti
 import nl.jochembroekhoff.motorscript.ir.expression.IRPartialRef
 import nl.jochembroekhoff.motorscript.ir.flow.statement.*
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
+import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.DependencyMeta
+import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.Slot
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 
 class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVertex>(vctx) {
@@ -97,7 +99,12 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         } else {
             val exprVisitor = ExpressionVisitor(vctxNext())
             val exprV = exprVisitor.visitExpression(exprCtx)
-            gMkV { IRReturn(IRReturn.Type.EXPR) }.also { it.gDependOn(exprV) }
+            gMkV { IRReturn(IRReturn.Type.EXPR) }.also {
+                it.gDependOn(
+                    exprV,
+                    DependencyMeta(slot = Slot(Slot.Category.SOURCE))
+                )
+            }
         }
     }
 
@@ -113,7 +120,7 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         val exprStmtV = gMkV { IRExpressionStatement() }
         val exprVisitor = ExpressionVisitor(vctxNext())
         val exprV = exprVisitor.visitExpression(ctx.expression())
-        exprStmtV.gDependOn(exprV)
+        exprStmtV.gDependOn(exprV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
         return exprStmtV
     }
 }
