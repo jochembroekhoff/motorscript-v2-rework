@@ -21,8 +21,14 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         }
 
         return gMkV { IRAssign() }.also {
-            it.gDependOn(gMkV { IRPartialRef(listOf(declTargetCtx.identifier().text), vctx.rctx) })
-            it.gDependOn(ExpressionVisitor(vctxNext()).visitExpression(ctx.expression()))
+            it.gDependOn(
+                gMkV { IRPartialRef(listOf(declTargetCtx.identifier().text), vctx.rctx) },
+                DependencyMeta(slot = Slot(Slot.Category.TARGET))
+            )
+            it.gDependOn(
+                ExpressionVisitor(vctxNext()).visitExpression(ctx.expression()),
+                DependencyMeta(slot = Slot(Slot.Category.SOURCE))
+            )
         }
     }
 
