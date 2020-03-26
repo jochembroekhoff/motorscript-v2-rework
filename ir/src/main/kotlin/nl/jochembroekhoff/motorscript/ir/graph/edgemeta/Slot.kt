@@ -7,5 +7,10 @@ data class Slot(val category: Category, val name: String = "", val index: Int = 
         AGR_NAMED,
         SOURCE,
         TARGET,
+        FIND,
+    }
+
+    fun format(): String {
+        return "$category ($name#$index)"
     }
 }

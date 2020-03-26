@@ -50,7 +50,7 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         ctx.forWhile()?.also { forWhileCtx ->
             val conditionV = ExpressionVisitor(vctxNext()).visitExpression(forWhileCtx.expression())
             val forV = gMkV { IRFor(IRFor.Type.WHILE) }
-            forV.gDependOn(conditionV)
+            forV.gDependOn(conditionV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
             val block = BlockVisitor(vctxNext()).visitBlock(forWhileCtx.block())
             forV.gBranchTo(block.first)
             block.second.gFollowedBy(forV)
@@ -75,8 +75,8 @@ class StatementVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRStatementVer
         val branches = sequenceOf(ctx.ifMainBranch().let { createBranch(it.expression(), it.block()) }) +
             ctx.ifElseIfBranch().asSequence().map { createBranch(it.expression(), it.block()) }
 
-        branches.forEach { (expr, branch) ->
-            ifStmtV.gDependOn(expr)
+        branches.forEachIndexed { i, (expr, branch) ->
+            ifStmtV.gDependOn(expr, DependencyMeta(slot = Slot(Slot.Category.SOURCE, index = i)))
             ifStmtV.gBranchTo(branch.first)
         }
 

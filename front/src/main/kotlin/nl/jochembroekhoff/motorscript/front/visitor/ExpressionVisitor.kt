@@ -30,8 +30,8 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
                     val vFind = gMkV { IRFind(IRFind.Type.INDEX) }
                     val expressionVisitor = ExpressionVisitor(vctxNext())
                     val expr = expressionVisitor.visitExpression(findIndexCtx.expression())
-                    vFind.gDependOn(expr) // Index value dependency
-                    vFind.gDependOn(curr) // Ensure parts chain
+                    vFind.gDependOn(expr, DependencyMeta(slot = Slot(Slot.Category.FIND))) // Index value dependency
+                    vFind.gDependOn(curr, DependencyMeta(slot = Slot(Slot.Category.SOURCE))) // Ensure parts chain
                     curr = vFind
                 }
                 findCtx.findPath()?.also { findPathCtx ->
@@ -44,8 +44,11 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
 
                     // Build graph
                     val vFind = gMkV { IRFind(IRFind.Type.PATH) }
-                    vFind.gDependOn(gMkV { IRLiteralString(stringValue) }) // Path find text value dependency
-                    vFind.gDependOn(curr) // Ensure parts chain
+                    vFind.gDependOn(
+                        gMkV { IRLiteralString(stringValue) }, // Path find text value dependency
+                        DependencyMeta(slot = Slot(Slot.Category.FIND))
+                    )
+                    vFind.gDependOn(curr, DependencyMeta(slot = Slot(Slot.Category.SOURCE))) // Ensure parts chain
                     curr = vFind
                 }
             }
@@ -77,12 +80,12 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
             val targetV = getExprV()
             postfixCtx.MinusDouble()?.also {
                 return gMkV { IRPostfix(IRPostfix.Op.DECR) }.also {
-                    it.gDependOn(targetV)
+                    it.gDependOn(targetV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
                 }
             }
             postfixCtx.PlusDouble()?.also {
                 return gMkV { IRPostfix(IRPostfix.Op.INCR) }.also {
-                    it.gDependOn(targetV)
+                    it.gDependOn(targetV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
                 }
             }
             internalAssert(false, "Unexpected postfix operator: ${postfixCtx.text}")
@@ -92,17 +95,17 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
             val targetV = getExprV()
             prefixCtx.Exclam()?.also {
                 return gMkV { IRUnary(IRUnary.Op.NEGATE) }.also {
-                    it.gDependOn(targetV)
+                    it.gDependOn(targetV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
                 }
             }
             prefixCtx.MinusDouble()?.also {
                 return gMkV { IRUnary(IRUnary.Op.PRE_DECR) }.also {
-                    it.gDependOn(targetV)
+                    it.gDependOn(targetV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
                 }
             }
             prefixCtx.PlusDouble()?.also {
                 return gMkV { IRUnary(IRUnary.Op.PRE_INCR) }.also {
-                    it.gDependOn(targetV)
+                    it.gDependOn(targetV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
                 }
             }
             internalAssert(false, "Unexpected prefix/unary operator: ${prefixCtx.text}")

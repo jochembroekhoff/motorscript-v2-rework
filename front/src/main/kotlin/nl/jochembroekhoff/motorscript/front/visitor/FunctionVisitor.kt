@@ -2,6 +2,8 @@ package nl.jochembroekhoff.motorscript.front.visitor
 
 import nl.jochembroekhoff.motorscript.ir.flow.misc.IREntry
 import nl.jochembroekhoff.motorscript.ir.flow.statement.IRReturn
+import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.DependencyMeta
+import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.Slot
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
 
 class FunctionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IREntry>(vctx) {
@@ -12,7 +14,7 @@ class FunctionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IREntry>(vctx) 
             val retStmt = gMkV { IRReturn(IRReturn.Type.EXPR) }
             val exprVisitor = ExpressionVisitor(vctxNext())
             val expr = exprVisitor.visitExpression(exprStmtCtx.expression())
-            retStmt.gDependOn(expr)
+            retStmt.gDependOn(expr, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
             entryPoint.gFollowedBy(retStmt)
         }
 
