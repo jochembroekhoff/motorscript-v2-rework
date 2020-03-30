@@ -1,4 +1,5 @@
 module motorscript.ir {
+    exports nl.jochembroekhoff.motorscript.ir.debugexport;
     exports nl.jochembroekhoff.motorscript.ir.expression;
     exports nl.jochembroekhoff.motorscript.ir.flow.misc;
     exports nl.jochembroekhoff.motorscript.ir.flow.statement;
@@ -10,5 +11,6 @@ module motorscript.ir {
 
     requires motorscript.common;
 
-    requires transitive org.jgrapht.core;
+    requires org.jgrapht.core;
+    requires org.jgrapht.io;
 }

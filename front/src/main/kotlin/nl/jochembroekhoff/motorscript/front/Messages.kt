@@ -9,4 +9,5 @@ internal object Messages {
     val notImplemented = MessageBase(Level.WARNING, category, 1, "Feature not implemented.")
     val duplicateNamedArgument = MessageBase(Level.ERROR, category, 2, "Duplicate named argument.")
     val implicitSelectorName = MessageBase(Level.WARNING, category, 3, "Using implicit selector name property.")
+    val duplicateModifier = MessageBase(Level.WARNING, category, 4, "Same modifier specified multiple times.")
 }

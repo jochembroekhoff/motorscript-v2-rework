@@ -62,7 +62,7 @@ object Main : KLogging() {
          * Basic args processing
          */
 
-        val propertyMap = optionProperties.toMap()
+        val propMap = optionProperties.toMap()
         val debugFlags = optionDebugFlags.mapTo(LinkedHashSet()) { it -> it + "TODO" }
 
         /*
@@ -87,7 +87,7 @@ object Main : KLogging() {
                 return
             }
             is Ok -> {
-                when (val execution = BuildManager.createExecution(buildSpec.value, sourceRoot, messagePipe)) {
+                when (val execution = BuildManager.createExecution(buildSpec.value, sourceRoot, messagePipe, propMap)) {
                     is Error -> {
                         logger.error { "Failed to create the execution: ${execution.value}" }
                     }

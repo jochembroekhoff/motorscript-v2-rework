@@ -35,7 +35,12 @@ object BuildManager : KLogging() {
         }
     }
 
-    fun createExecution(buildSpec: BuildSpec, sourceRoot: Path, messagePipe: MessagePipe): Result<Execution, String> {
+    fun createExecution(
+        buildSpec: BuildSpec,
+        sourceRoot: Path,
+        messagePipe: MessagePipe,
+        properties: Map<String, String>
+    ): Result<Execution, String> {
         logger.debug { "Creating execution from source root $sourceRoot" }
 
         if (!Files.exists(sourceRoot) || !Files.isDirectory(sourceRoot)) {
@@ -46,7 +51,8 @@ object BuildManager : KLogging() {
             Execution(
                 buildSpec,
                 sourceRoot,
-                messagePipe
+                messagePipe,
+                properties
             )
         )
     }

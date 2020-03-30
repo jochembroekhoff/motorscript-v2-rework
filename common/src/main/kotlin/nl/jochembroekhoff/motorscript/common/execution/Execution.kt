@@ -7,5 +7,6 @@ import java.nio.file.Path
 data class Execution(
     val buildSpec: BuildSpec,
     val sourceRoot: Path,
-    val messagePipe: MessagePipe
+    val messagePipe: MessagePipe,
+    val properties: Map<String, String>
 )
