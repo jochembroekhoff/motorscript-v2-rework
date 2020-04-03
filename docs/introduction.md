@@ -22,7 +22,7 @@ structure, instead, a file with a slightly comparable functionality is there, ca
 See the [Build spec](./configuration/build-spec.md) page for more information about that file.
 
 In this case, the namespace folder was called `example`, but this may be any name, as long as it adheres to the
-Minecraft namespaced identifier requirements. 
+Minecraft namespaced identifier requirements.
 
 **FUTURE**: It might be possible at some point to have non-MotorScript resources inside the project source folder.
 All those resources could then just be copied to the destination data pack.
@@ -37,7 +37,7 @@ For the reset of this section, it is assumed MotorScript Compiler is available b
 $ ./mosc [option...]
 ```
 
-See [Configuration](./configuration.md#cli-options) for details about which options are available and what they do.
+See [CLI options](./configuration/cli-options.md) for details about which options are available and what they do.
 
 As can be seen from the list of available options, it is not possible to directly compile a stand-alone MotorScript
 file. All source files will be discovered automatically, they are scanned in the `src` directory.
