@@ -13,7 +13,7 @@ class DiscoverExecutionUnit : ExecutionUnit<PackIndex>() {
 
     companion object : KLogging()
 
-    override fun executeInContext(ectx: ExecutionContext): Result<PackIndex, Unit> {
+    override fun execute(): Result<PackIndex, Unit> {
         val sourceIndex = ectx.executor.supply {
             logger.debug { "Indexing sources (treating source root in pack format)..." }
             return@supply PackIndex.loadFrom(ectx.execution.sourceRoot)

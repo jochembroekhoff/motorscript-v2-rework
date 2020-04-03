@@ -9,16 +9,32 @@ import java.util.concurrent.CompletableFuture
 abstract class ExecutionUnit<T> {
     companion object : KLogging()
 
+    protected lateinit var ectx: ExecutionContext
+
     /**
-     * Execute this unit in the given [ectx].
+     * Prepare this unit to be executed in the given [ectx].
+     */
+    fun prepareContext(ectx: ExecutionContext) {
+        this.ectx = ectx
+    }
+
+    /**
+     * Execute this unit.
      *
-     * The method should return synchronously. No tasks should be left in the executor provided by the [ectx] that
-     * are created by this execution unit.
+     * The method should return synchronously. No tasks created by this unit should be left executing when this method
+     * returns.
      *
-     * @param ectx The [ExecutionContext] to use.
      * @return A result object indicating whether the whole unit executed successfully or if some part failed.
      */
-    abstract fun executeInContext(ectx: ExecutionContext): Result<T, Unit>
+    abstract fun execute(): Result<T, Unit>
+
+    /**
+     * Utility method that calls [prepareContext] and then returns the return value of [execute].
+     */
+    fun executeInContext(ectx: ExecutionContext): Result<T, Unit> {
+        prepareContext(ectx)
+        return execute()
+    }
 
     /**
      * Safely gather a [Result] of some [futs].

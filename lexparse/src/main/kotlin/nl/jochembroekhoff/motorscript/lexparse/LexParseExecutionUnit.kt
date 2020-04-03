@@ -19,7 +19,7 @@ class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<
 
     companion object : KLogging()
 
-    override fun executeInContext(ectx: ExecutionContext): Result<Map<PackEntry, MOSParser.ScriptContext>, Unit> {
+    override fun execute(): Result<Map<PackEntry, MOSParser.ScriptContext>, Unit> {
         val anyFailed = AtomicBoolean(false)
 
         val futs = sourceIndex.streamType("mos").asSequence().associate { entry ->

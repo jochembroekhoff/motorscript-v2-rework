@@ -6,7 +6,7 @@ import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 
 class CheckExecutionUnit : ExecutionUnit<Unit>() {
-    override fun executeInContext(ectx: ExecutionContext): Result<Unit, Unit> {
+    override fun execute(): Result<Unit, Unit> {
         return Ok(Unit)
     }
 }
