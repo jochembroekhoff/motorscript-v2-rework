@@ -42,13 +42,13 @@ object StringUtil {
         var inEscape = false
         chars.forEach { c ->
             if (inEscape) {
-                if (c == 't' || c == 'n' || c == '\\') {
-                    res[unescapedLength] = when (c) {
+                if (c == 't' || c == 'n' || c == '\\' || c == '"' || c == '\'') {
+                    res[unescapedLength++] = when (c) {
                         't' -> '\t'
                         'n' -> '\n'
                         else -> c
                     }
-                    unescapedLength++
+                    inEscape = false
                 } else {
                     return Error("Cannot escape char '$c'")
                 }
@@ -56,8 +56,7 @@ object StringUtil {
                 if (c == '\\') {
                     inEscape = true
                 } else {
-                    res[unescapedLength] = c
-                    unescapedLength++
+                    res[unescapedLength++] = c
                 }
             }
         }

@@ -30,8 +30,11 @@ abstract class MOSExtendedVisitor<T>(val vctx: VisitorContext) : MOSBaseVisitor<
         return e
     }
 
-    protected inline fun <T : IRVertex> gMkV(creator: () -> T): T {
-        return creator().also { vctx.g.addVertex(it) }
+    protected inline fun <T : IRVertex> gMkV(synthetic: Boolean = false, creator: () -> T): T {
+        return creator().also {
+            vctx.g.addVertex(it)
+            if (synthetic) vctx.g.markSynthetic(it)
+        }
     }
 
     protected inline fun internalAssert(

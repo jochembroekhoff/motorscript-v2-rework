@@ -111,6 +111,8 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
             internalAssert(false, "Unexpected prefix/unary operator: ${prefixCtx.text}")
         }
 
+        // TODO: infix ops (*, /, %, +, -, &&, ||)
+
         ctx.compare()?.also { compCtx ->
             val comparisionType = when {
                 compCtx.KwIs() != null -> IRCompare.Type.IS

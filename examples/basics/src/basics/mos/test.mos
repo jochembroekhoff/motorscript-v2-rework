@@ -6,3 +6,22 @@ func nonstandard_selector
 {
     kill(@CustomName)
 }
+
+/*
+ * Used to test return flow guards. Not a very realistic use case, because these if statements can easily be rewritten
+ * to use and condition to prevent having to use a return statement.
+ */
+func guard_ret
+{
+    if levels > 5
+    {
+        if levels < 50
+        {
+            say("You're good")
+            return
+        }
+        say("Waaay too much levels")
+        say("Right?")
+    }
+    kill(@s)
+}

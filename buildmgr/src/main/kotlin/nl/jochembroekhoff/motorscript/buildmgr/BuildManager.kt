@@ -86,7 +86,7 @@ object BuildManager : KLogging() {
         execution.buildSpec.targets.forEach { target ->
             logger.info { "Processing target $target" }
 
-            val result = CheckExecutionUnit().executeInContext(executionContext)
+            val result = CheckExecutionUnit(frontRes.value).executeInContext(executionContext)
         }
 
         return true

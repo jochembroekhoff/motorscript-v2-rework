@@ -7,12 +7,12 @@ buildscript {
         maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-serialization:1.3.70"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:1.3.71"
     }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.70' apply false
+    id 'org.jetbrains.kotlin.jvm' version '1.3.71' apply false
     id 'org.javamodularity.moduleplugin' version '1.5.0' apply false
 }
 
@@ -26,7 +26,7 @@ ext {
     slf4j_version = '1.7.30'
     kotlinLogging_version = '1.7.9'
     kotlinxSerializationRuntime_version = '0.20.0'
-    junit5_version = '5.6.0'
+    junit5_version = '5.6.1'
 }
 
 subprojects {
@@ -64,10 +64,10 @@ subprojects {
 
     kotlin {
         compileKotlin {
-            kotlinOptions.jvmTarget = '1.8'
+            kotlinOptions.jvmTarget = '13'
         }
         compileTestKotlin {
-            kotlinOptions.jvmTarget = '1.8'
+            kotlinOptions.jvmTarget = '13'
         }
     }
 

@@ -1,12 +1,29 @@
 package nl.jochembroekhoff.motorscript.check
 
-import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
+import mu.KLogging
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
+import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
+import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
+import nl.jochembroekhoff.motorscript.def.DefContainer
+import nl.jochembroekhoff.motorscript.ir.container.IRDefEntryMeta
 
-class CheckExecutionUnit : ExecutionUnit<Unit>() {
+class CheckExecutionUnit(private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>) : ExecutionUnit<Unit>() {
+
+    companion object : KLogging()
+
     override fun execute(): Result<Unit, Unit> {
+        logger.debug { "Executing :check" }
+
+        val futs = input.map { defContainer ->
+            ectx.executor.supply {
+
+            }
+        }.toTypedArray()
+
+        gatherSafe(*futs)
+
         return Ok(Unit)
     }
 }

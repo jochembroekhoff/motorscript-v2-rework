@@ -42,6 +42,16 @@ class StringUtilTest {
                     assertEquals(Ok<String, String>(output), StringUtil.unescape(input))
                     assertEquals(1, (StringUtil.unescape(input) as Ok).value.length)
                 }
+
+                @ParameterizedTest
+                @CsvSource(
+                    value = [
+                        "hello\\nbye, 'hello\nbye'"
+                    ]
+                )
+                fun `multiple chars`(input: String, output: String) {
+                    assertEquals(Ok<String, String>(output), StringUtil.unescape(input))
+                }
             }
         }
 

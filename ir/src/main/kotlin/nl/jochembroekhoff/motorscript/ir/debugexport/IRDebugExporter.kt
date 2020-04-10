@@ -4,23 +4,25 @@ import nl.jochembroekhoff.motorscript.ir.flow.misc.IREntry
 import nl.jochembroekhoff.motorscript.ir.flow.statement.IRStatementVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IREdgeType
+import nl.jochembroekhoff.motorscript.ir.graph.IRGraph
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import org.jgrapht.nio.DefaultAttribute
-import org.jgrapht.nio.GraphExporter
 import org.jgrapht.nio.dot.DOTExporter
+import java.io.File
 
 object IRDebugExporter {
-    fun createDebugExporter(): GraphExporter<IRVertex, IREdge> {
-        return DOTExporter<IRVertex, IREdge>().apply {
-            setVertexAttributeProvider { vertex ->
-                val base = "${vertex.contentClass()} : ${vertex::class.java.simpleName}"
-                val description = vertex.contentDescription()
+    fun exportGraph(g: IRGraph, dest: File) {
+        DOTExporter<IRVertex, IREdge>().run {
+            setVertexAttributeProvider { v ->
+                val base = "${v.contentClass()} : ${v::class.java.simpleName}" +
+                    if (g.isSynthetic(v)) " *" else ""
+                val description = v.contentDescription()
                 val label = if (description.isNotBlank()) {
                     "$base\n$description"
                 } else {
                     base
                 }
-                val shape = when (vertex) {
+                val shape = when (v) {
                     is IREntry -> "hexagon"
                     is IRStatementVertex -> "box"
                     else -> "ellipse"
@@ -30,14 +32,14 @@ object IRDebugExporter {
                     "shape" to DefaultAttribute.createAttribute(shape)
                 )
             }
-            setEdgeAttributeProvider { edge ->
-                val label = edge.type.toString() + "\n" + edge.meta.contentDescription()
-                val color = when (edge.type) {
+            setEdgeAttributeProvider { e ->
+                val label = e.type.toString() + "\n" + e.meta.contentDescription()
+                val color = when (e.type) {
                     IREdgeType.FLOW -> "green"
                     IREdgeType.BRANCH -> "aqua"
                     else -> "black"
                 }
-                val style = when (edge.type) {
+                val style = when (e.type) {
                     IREdgeType.DEPENDENCY -> "dotted"
                     else -> ""
                 }
@@ -47,6 +49,7 @@ object IRDebugExporter {
                     "style" to DefaultAttribute.createAttribute(style)
                 )
             }
+            exportGraph(g, dest)
         }
     }
 }
