@@ -5,6 +5,7 @@ module motorscript.common {
     exports nl.jochembroekhoff.motorscript.common.extensions.executorservice;
     exports nl.jochembroekhoff.motorscript.common.extensions.path;
     exports nl.jochembroekhoff.motorscript.common.extensions.sequences;
+    exports nl.jochembroekhoff.motorscript.common.extensions.tuples;
     exports nl.jochembroekhoff.motorscript.common.messages;
     exports nl.jochembroekhoff.motorscript.common.pack;
     exports nl.jochembroekhoff.motorscript.common.ref;

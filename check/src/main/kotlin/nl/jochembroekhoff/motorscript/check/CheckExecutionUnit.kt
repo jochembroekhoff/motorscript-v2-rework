@@ -9,11 +9,11 @@ import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.def.DefContainer
 import nl.jochembroekhoff.motorscript.ir.container.IRDefEntryMeta
 
-class CheckExecutionUnit(private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>) : ExecutionUnit<Unit>() {
+class CheckExecutionUnit(private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>) : ExecutionUnit<List<DefContainer<PackEntry, IRDefEntryMeta>>>() {
 
     companion object : KLogging()
 
-    override fun execute(): Result<Unit, Unit> {
+    override fun execute(): Result<List<DefContainer<PackEntry, IRDefEntryMeta>>, Unit> {
         logger.debug { "Executing :check" }
 
         val futs = input.map { defContainer ->
@@ -24,6 +24,6 @@ class CheckExecutionUnit(private val input: List<DefContainer<PackEntry, IRDefEn
 
         gatherSafe(*futs)
 
-        return Ok(Unit)
+        return Ok(input)
     }
 }

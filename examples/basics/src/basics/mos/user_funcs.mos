@@ -1,9 +1,0 @@
-use text\tellraw
-
-/*
- * /function basics:user_funcs/hello
- */
-user func hello
-{
-    tellraw(@s, "Hello!")
-}

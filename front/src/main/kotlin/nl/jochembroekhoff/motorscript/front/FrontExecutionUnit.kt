@@ -89,6 +89,8 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
     ) {
         val funcName = funcDecl.identifier().text
 
+        // TODO: Extract signature
+
         val funcGraph = IRGraph()
         // TODO: given ReferenceContext should be populated with imports
         val vctx = VisitorContext(ectx, funcGraph, ReferenceContext(packEntry.base))

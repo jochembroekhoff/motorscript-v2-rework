@@ -8,12 +8,16 @@ import nl.jochembroekhoff.motorscript.check.CheckExecutionUnit
 import nl.jochembroekhoff.motorscript.common.buildspec.BuildSpec
 import nl.jochembroekhoff.motorscript.common.execution.Execution
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
+import nl.jochembroekhoff.motorscript.common.execution.ExecutionException
 import nl.jochembroekhoff.motorscript.common.messages.MessagePipe
 import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
+import nl.jochembroekhoff.motorscript.common.result.then
+import nl.jochembroekhoff.motorscript.def.EDefLoadExecutionUnit
 import nl.jochembroekhoff.motorscript.discover.DiscoverExecutionUnit
 import nl.jochembroekhoff.motorscript.front.FrontExecutionUnit
+import nl.jochembroekhoff.motorscript.gen.GenExecutionUnit
 import nl.jochembroekhoff.motorscript.lexparse.LexParseExecutionUnit
 import java.nio.file.Files
 import java.nio.file.Path
@@ -68,16 +72,24 @@ object BuildManager : KLogging() {
 
         val frontRes = DiscoverExecutionUnit().executeInContext(executionContext).withError { err ->
             logger.trace { "Discover failed with $err" }
-        }.then { discoverResult ->
-            LexParseExecutionUnit(discoverResult).executeInContext(executionContext)
-        }.withError { err ->
-            logger.trace { "LexParse failed with $err" }
+        }.then { (sourceIndex, dependencyLocations) ->
+            EDefLoadExecutionUnit(dependencyLocations).executeInContext(executionContext)
+                .mapOk { Pair(sourceIndex, it) }
+        }.then { (sourceIndex, dependencyContainers) ->
+            LexParseExecutionUnit(sourceIndex).executeInContext(executionContext)
         }.then { lexParseRes ->
             FrontExecutionUnit(lexParseRes).executeInContext(executionContext)
         }
 
         if (frontRes !is Ok) {
             logger.info { "Generic build execution part failed, see message pipe. Result: $frontRes" }
+            // Try to extract execution exceptions if they are returned
+            frontRes.withError { err ->
+                if (err is Collection<*>) {
+                    err.filterIsInstance<ExecutionException>()
+                        .forEach { it.dispatchTo(executionContext.execution.messagePipe) }
+                }
+            }
             return false
         }
 
@@ -86,7 +98,9 @@ object BuildManager : KLogging() {
         execution.buildSpec.targets.forEach { target ->
             logger.info { "Processing target $target" }
 
-            val result = CheckExecutionUnit(frontRes.value).executeInContext(executionContext)
+            val result = CheckExecutionUnit(frontRes.value).executeInContext(executionContext).then { checkRes ->
+                GenExecutionUnit(checkRes).executeInContext(executionContext)
+            }
         }
 
         return true

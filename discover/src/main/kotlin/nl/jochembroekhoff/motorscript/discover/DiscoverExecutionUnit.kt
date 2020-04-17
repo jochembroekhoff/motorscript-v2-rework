@@ -1,19 +1,18 @@
 package nl.jochembroekhoff.motorscript.discover
 
 import mu.KLogging
-import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
 import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
 import nl.jochembroekhoff.motorscript.common.pack.PackIndex
-import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
-import java.util.concurrent.CompletableFuture
+import java.nio.file.Path
+import java.nio.file.Paths
 
-class DiscoverExecutionUnit : ExecutionUnit<PackIndex>() {
+class DiscoverExecutionUnit : ExecutionUnit<Pair<PackIndex, Map<String, Path>>>() {
 
     companion object : KLogging()
 
-    override fun execute(): Result<PackIndex, Unit> {
+    override fun execute(): Result<Pair<PackIndex, Map<String, Path>>, Any?> {
         val sourceIndex = ectx.executor.supply {
             logger.debug { "Indexing sources (treating source root in pack format)..." }
             return@supply PackIndex.loadFrom(ectx.execution.sourceRoot)
@@ -22,12 +21,14 @@ class DiscoverExecutionUnit : ExecutionUnit<PackIndex>() {
         val dependencyResolvers = ectx.execution.buildSpec.dependencies.map { dependency ->
             ectx.executor.supply {
                 logger.trace { "Resolving dependency ${dependency.format()}" }
-                // TODO: Implement
+                if (dependency.name != "stdlib") {
+                    TODO("Other dependencies then stdlib")
+                }
+                Pair(dependency.name, Paths.get("examples/stdlib/edef.json"))
             }
         }.toTypedArray()
 
-        CompletableFuture.allOf(sourceIndex, *dependencyResolvers).get()
-
-        return Ok(sourceIndex.get())
+        val resolverResults = gatherSafe(*dependencyResolvers)
+        return resolverResults.mapOk { Pair(sourceIndex.get(), it.toMap()) }
     }
 }

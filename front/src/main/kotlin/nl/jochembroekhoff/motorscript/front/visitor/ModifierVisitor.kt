@@ -31,6 +31,8 @@ class ModifierVisitor(vctx: VisitorContext) : MOSExtendedVisitor<Set<Modifier>>(
 
     private fun processFunctionModifier(ctx: MOSParser.FunctionModifierContext): Modifier? {
         return when {
+            ctx.KwBuiltin() != null -> Modifier.BUILTIN
+            ctx.KwConst() != null -> Modifier.CONST
             ctx.KwDefault() != null -> Modifier.DEFAULT
             ctx.KwIterator() != null -> Modifier.ITERATOR
             ctx.KwPrivate() != null -> Modifier.PRIVATE

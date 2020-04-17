@@ -1,7 +1,6 @@
 package nl.jochembroekhoff.motorscript.lexparse
 
 import mu.KLogging
-import nl.jochembroekhoff.motorscript.common.execution.ExecutionContext
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
 import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
 import nl.jochembroekhoff.motorscript.common.pack.PackEntry
@@ -15,7 +14,8 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.streams.asSequence
 
-class LexParseExecutionUnit(private val sourceIndex: PackIndex) : ExecutionUnit<Map<PackEntry, MOSParser.ScriptContext>>() {
+class LexParseExecutionUnit(private val sourceIndex: PackIndex) :
+    ExecutionUnit<Map<PackEntry, MOSParser.ScriptContext>>() {
 
     companion object : KLogging()
 

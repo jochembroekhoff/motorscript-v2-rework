@@ -4,16 +4,17 @@ import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutio
 import nl.jochembroekhoff.motorscript.common.messages.Attachable
 import nl.jochembroekhoff.motorscript.common.messages.ErrorAttachment
 
-sealed class Result<R, E> {
-    /**
-     * Chain an operation to be executed if the current [Result] is [Ok].
-     */
-    inline fun <ROut> then(handler: (R) -> Result<ROut, E>): Result<ROut, E> {
-        return when (this) {
-            is Ok -> handler(value)
-            is Error -> Error(value)
-        }
+/**
+ * Chain an operation to be executed if the current [Result] is [Ok].
+ */
+inline fun <R, E, ROut> Result<R, E>.then(handler: (R) -> Result<ROut, E>): Result<ROut, E> {
+    return when (this) {
+        is Ok -> handler(value)
+        is Error -> Error(value)
     }
+}
+
+sealed class Result<out R, out E> {
 
     /**
      * Transform the success value if this [Result] is [Ok] using the given [handler].
@@ -74,9 +75,9 @@ sealed class Result<R, E> {
     }
 }
 
-data class Ok<R, E>(val value: R) : Result<R, E>()
+data class Ok<out R, out E>(val value: R) : Result<R, E>()
 
-data class Error<R, E>(val value: E) : Result<R, E>(), Attachable {
+data class Error<out R, out E>(val value: E) : Result<R, E>(), Attachable {
     override fun toAttachment(): ErrorAttachment {
         return ErrorAttachment(this)
     }

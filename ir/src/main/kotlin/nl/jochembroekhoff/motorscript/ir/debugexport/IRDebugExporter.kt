@@ -6,6 +6,7 @@ import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.IREdgeType
 import nl.jochembroekhoff.motorscript.ir.graph.IRGraph
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
+import org.jgrapht.nio.Attribute
 import org.jgrapht.nio.DefaultAttribute
 import org.jgrapht.nio.dot.DOTExporter
 import java.io.File
@@ -28,8 +29,8 @@ object IRDebugExporter {
                     else -> "ellipse"
                 }
                 mapOf(
-                    "label" to DefaultAttribute.createAttribute(label),
-                    "shape" to DefaultAttribute.createAttribute(shape)
+                    "label" to attr(label),
+                    "shape" to attr(shape)
                 )
             }
             setEdgeAttributeProvider { e ->
@@ -44,12 +45,16 @@ object IRDebugExporter {
                     else -> ""
                 }
                 mapOf(
-                    "label" to DefaultAttribute.createAttribute(label),
-                    "color" to DefaultAttribute.createAttribute(color),
-                    "style" to DefaultAttribute.createAttribute(style)
+                    "label" to attr(label),
+                    "color" to attr(color),
+                    "style" to attr(style)
                 )
             }
             exportGraph(g, dest)
         }
+    }
+
+    private fun attr(value: String): Attribute {
+        return DefaultAttribute.createAttribute(value.replace("\\", "\\\\"))
     }
 }

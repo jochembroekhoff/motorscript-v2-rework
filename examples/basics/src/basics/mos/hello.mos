@@ -1,0 +1,5 @@
+// Callable in-game with: /function basics:hello
+default user func hello
+{
+    minecraft:text\say("Hello")
+}

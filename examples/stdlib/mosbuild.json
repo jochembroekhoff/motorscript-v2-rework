@@ -1,0 +1,10 @@
+{
+  "name": "stdlib",
+  "version": "1.0.0",
+  "description": "MotorScript Standard Library",
+  "targets": [{
+    "platform": "java",
+    "version": "1.16"
+  }],
+  "dependencies": []
+}

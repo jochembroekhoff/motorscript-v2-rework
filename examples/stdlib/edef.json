@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "name": "stdlib",
+    "version": "1.0.0",
+    "description": "MotorScript Standard Library"
+  },
+  "functions": {
+    "stdlib": {
+      "stdlib:text/mos": {
+        "signature": {
+          "params": [
+            {
+              "name": "text",
+              "type": "prelude:String"
+            }
+          ],
+          "returns": "prelude:Void",
+          "builtin": true,
+          "const": true
+        }
+      }
+    }
+  }
+}

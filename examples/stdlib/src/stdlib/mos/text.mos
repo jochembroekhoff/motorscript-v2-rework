@@ -1,0 +1,1 @@
+const builtin func say(text: String)
