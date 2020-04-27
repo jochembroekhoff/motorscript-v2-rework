@@ -22,15 +22,15 @@ val Path.extension: String
  * Can have length zero, for example for the root file.
  */
 val Path.allNames: List<Path>
-    get() = 0.until(nameCount).map(this::getName)
+    get() = 0.until(nameCount).map(::getName)
 
-operator fun Path.div(value: Path): Path = this.resolve(value)
+operator fun Path.div(value: Path): Path = resolve(value)
 
-operator fun Path.div(value: String): Path = this.resolve(value)
+operator fun Path.div(value: String): Path = resolve(value)
 
 operator fun Path.div(value: List<String>): Path {
     if (value.isEmpty()) {
         return this
     }
-    return this.resolve(Path.of(value[0], *value.subList(1, value.size - 1).toTypedArray()))
+    return resolve(Path.of(value[0], *value.subList(1, value.size).toTypedArray()))
 }

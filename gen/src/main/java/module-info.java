@@ -7,4 +7,7 @@ module motorscript.gen {
     requires motorscript.common;
     requires motorscript.def;
     requires motorscript.ir;
+
+    requires org.jgrapht.core;
+    requires org.apache.commons.codec;
 }

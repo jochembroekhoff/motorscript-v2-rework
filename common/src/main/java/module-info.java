@@ -1,6 +1,7 @@
 module motorscript.common {
     exports nl.jochembroekhoff.motorscript.common.buildspec;
     exports nl.jochembroekhoff.motorscript.common.execution;
+    exports nl.jochembroekhoff.motorscript.common.extensions;
     exports nl.jochembroekhoff.motorscript.common.extensions.collections;
     exports nl.jochembroekhoff.motorscript.common.extensions.executorservice;
     exports nl.jochembroekhoff.motorscript.common.extensions.path;

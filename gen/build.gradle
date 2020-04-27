@@ -1,4 +1,7 @@
 dependencies {
+    implementation "org.jgrapht:jgrapht-core:$jgrapht_version"
+    implementation "commons-codec:commons-codec:$commonsCodec_version"
+
     implementation project(':def')
     implementation project(':ir')
 }

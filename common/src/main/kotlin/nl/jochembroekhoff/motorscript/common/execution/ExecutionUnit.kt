@@ -26,12 +26,12 @@ abstract class ExecutionUnit<T> {
      *
      * @return A result object indicating whether the whole unit executed successfully or if some part failed.
      */
-    abstract fun execute(): Result<T, out Any?>
+    abstract fun execute(): Result<T, Any?>
 
     /**
      * Utility method that calls [prepareContext] and then returns the return value of [execute].
      */
-    fun executeInContext(ectx: ExecutionContext): Result<T, out Any?> {
+    fun executeInContext(ectx: ExecutionContext): Result<T, Any?> {
         prepareContext(ectx)
         return execute()
     }

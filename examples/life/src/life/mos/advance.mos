@@ -1,0 +1,7 @@
+use text\tellraw
+
+default user func advance
+{
+    tellraw(@s, "Advancing manually by one step")
+    logic\advance_once()
+}

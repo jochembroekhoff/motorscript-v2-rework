@@ -63,7 +63,7 @@ object Main : KLogging() {
          */
 
         val propMap = optionProperties.toMap()
-        val debugFlags = optionDebugFlags.mapTo(LinkedHashSet()) { it -> it + "TODO" }
+        val debugFlags = optionDebugFlags.toSet()
 
         /*
          * Build spec loading and execution creation
@@ -78,6 +78,7 @@ object Main : KLogging() {
 
         val buildSpecFile = buildRoot.resolve("mosbuild.json")
         val sourceRoot = buildRoot.resolve("src")
+        val outputRoot = buildRoot.resolve("out")
 
         val messagePipe = ThreadLocalBufferingMessagePipe()
 
@@ -87,7 +88,7 @@ object Main : KLogging() {
                 return
             }
             is Ok -> {
-                when (val execution = BuildManager.createExecution(buildSpec.value, sourceRoot, messagePipe, propMap)) {
+                when (val execution = BuildManager.createExecution(buildSpec.value, sourceRoot, outputRoot, messagePipe, propMap)) {
                     is Error -> {
                         logger.error { "Failed to create the execution: ${execution.value}" }
                     }
@@ -141,7 +142,7 @@ object Main : KLogging() {
                 System.err.println("Compilation completed with warnings (took $timingText)")
             }
             else -> {
-                System.err.println("Compilation succeeded (took $timingText)")
+                System.err.println("Compilation succeeded (took $timingText), output located at $outputRoot")
             }
         }
     }

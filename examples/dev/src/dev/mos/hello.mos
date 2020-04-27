@@ -1,4 +1,4 @@
-// Callable in-game with: /function basics:hello
+// Callable in-game with: /function dev:hello
 default user func hello
 {
     minecraft:text\say("Hello")

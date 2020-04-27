@@ -3,7 +3,7 @@ package nl.jochembroekhoff.motorscript.ir.debugexport
 import nl.jochembroekhoff.motorscript.ir.flow.misc.IREntry
 import nl.jochembroekhoff.motorscript.ir.flow.statement.IRStatementVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
-import nl.jochembroekhoff.motorscript.ir.graph.IREdgeType
+import nl.jochembroekhoff.motorscript.ir.graph.edge.IREdgeType
 import nl.jochembroekhoff.motorscript.ir.graph.IRGraph
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import org.jgrapht.nio.Attribute

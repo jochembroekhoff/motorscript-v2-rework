@@ -21,6 +21,7 @@ version '1.0-SNAPSHOT'
 
 ext {
     antlr_version = '4.8-1'
+    commonsCodec_version = '1.14'
     jackson_version = '2.10.3'
     jgrapht_version = '1.4.0'
     slf4j_version = '1.7.30'

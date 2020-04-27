@@ -23,6 +23,8 @@ H(nsid, type) = sha(nsid + '|' + type)
 published_name_prefix(nsid, type) = "zzz__mos:" + nsid.namespace + '/' + H(nsid, type)
 ```
 
+Example CyberChef recipe is available [here][CyberChef recipe].
+
 # Base namespace
 
 Since everything is _always_ part of a namespace, you might expect that these items would also be put into that
@@ -31,7 +33,7 @@ namespace. The problem with doing this is that it would clutter the autocomplete
 show up in these autocomplete results, but that's impossible (at least currently AFAIK). So, the only solution to push
 down everything as far as possible is to give it a name with a lot of letters z in the beginning. That is the reason
 that not everything is contained in the namespace in which it actually belongs, but in a 'shared' namespace that will
-try to hide as much elements as possible.
+try to hide as many elements as possible.
 
 This common namespace, or base namespace is `zzz__mos`. This means that everything will be prefixed with `zzz__mos:`.
 
@@ -48,16 +50,16 @@ Demonstrating pseudo code:
 sha(x) = base32(SHA-256(x)[:20])
 H(nsid, type) = sha(nsid + '|' + type)
 H("myns:example\elem", "function") = sha("myns:example\elem|function")
-                                   = "giztqnbrgfqtkyjqhe4wen3fmuywemrr"
+                                   = "eocbdjnatg364gzbkm5wqfgobzustmdj"
 ```
 
 The base name and the unique element identifier make up the published name prefix. Note that the namespace will be
 prepended to the hash.
-For this example, that would be `zzz__mos:myns/giztqnbrgfqtkyjqhe4wen3fmuywemrr`.
+For this example, that would be `zzz__mos:myns/eocbdjnatg364gzbkm5wqfgobzustmdj`.
 
 # Functions split up
 
-Typically a function is more than one very simple statement. Sometimes there are loops, branches, etc. that need to be
+Typically, a function is more than one very simple statement. Sometimes there are loops, branches, etc. that need to be
 compiled. Internally a function as one unit will be compiled down to multiple `.mcfunction` files, simply to make
 conditional execution (branching, looping) possible. But still, those separate function files are part of the same
 function in the original source. That's why the published name prefix is a prefix: it's reused for parts that are nested
@@ -68,7 +70,7 @@ name of the nested element is simply concatenated to the published name prefix.
 
 For 3rd party usage, there is only one of such nested elements of particular interest, namely the entry point of the
 function. Per convention this will be available using the nested element `ep`.
-Elaborating the previous example, this will in turn become: `zzz__mos:myns/giztqnbrgfqtkyjqhe4wen3fmuywemrr/ep`.
+Elaborating the previous example, this will in turn become: `zzz__mos:myns/eocbdjnatg364gzbkm5wqfgobzustmdj/ep`.
 
 Of course the entry point is not the only nested element. MotorScript emits way more of these functions. Even though
 they do follow some convention, they are not intended to be used or accessible by third parties. Even patch versions of
@@ -95,5 +97,7 @@ compiler will also create the file `elem.mcfunction` in the data pack directory 
 following content:
 
 ```mcfunction
-function zzz__mos:myns/giztqnbrgfqtkyjqhe4wen3fmuywemrr/ep
+function zzz__mos:myns/eocbdjnatg364gzbkm5wqfgobzustmdj/ep
 ```
+
+[CyberChef recipe]: https://gchq.github.io/CyberChef/#recipe=SHA2('256')From_Hex('Auto')Take_bytes(0,20,false)To_Base32('a-z2-7%3D')&input=bXluczpleGFtcGxlXGVsZW18ZnVuY3Rpb24

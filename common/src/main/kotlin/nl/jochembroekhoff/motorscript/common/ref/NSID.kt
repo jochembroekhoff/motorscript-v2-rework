@@ -4,8 +4,12 @@ import kotlinx.serialization.*
 
 @Serializable
 data class NSID(val namespace: String, val name: List<String>) {
-    fun toDebugString(): String {
+    fun toInternalRepresentation(): String {
         return "$namespace:${name.joinToString("\\")}"
+    }
+
+    fun toGameRepresentation(): String {
+        return "$namespace:${name.joinToString("/")}"
     }
 
     operator fun div(nameAppend: String): NSID {

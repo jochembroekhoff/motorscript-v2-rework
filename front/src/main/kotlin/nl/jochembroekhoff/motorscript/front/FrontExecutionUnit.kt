@@ -98,11 +98,11 @@ class FrontExecutionUnit(private val entries: Map<PackEntry, MOSParser.ScriptCon
         val modifiers = ModifierVisitor(vctx).visitFunctionModifiers(funcDecl.functionModifiers())
         // TODO: Check that k.name == funcName (only then something is allowed to be exported with a default modifier)
         val publishedName =
-            if (modifiers.contains(Modifier.DEFAULT))
+            if (Modifier.DEFAULT in modifiers)
                 packEntry.base / packEntry.name
             else
                 packEntry.base / packEntry.name / funcName
-        logger.debug { "Processing func '$funcName' (published as ${publishedName.toDebugString()})" }
+        logger.debug { "Processing func '$funcName' (published as ${publishedName.toInternalRepresentation()})" }
 
         val funcVisitor = FunctionVisitor(vctx)
         val entryPoint = funcVisitor.visitFunctionBody(funcDecl.functionBody())
