@@ -15,7 +15,7 @@ object IRDebugExporter {
     fun exportGraph(g: IRGraph, dest: File) {
         DOTExporter<IRVertex, IREdge>().run {
             setVertexAttributeProvider { v ->
-                val base = "${v.contentClass()} : ${v::class.java.simpleName}" +
+                val base = "${v.contentClass()} : ${v::class.simpleName}" +
                     if (g.isSynthetic(v)) " *" else ""
                 val description = v.contentDescription()
                 val label = if (description.isNotBlank()) {

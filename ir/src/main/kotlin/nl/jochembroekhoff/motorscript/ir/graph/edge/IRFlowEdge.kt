@@ -3,4 +3,4 @@ package nl.jochembroekhoff.motorscript.ir.graph.edge
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
 import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.FlowMeta
 
-data class IRFlowEdge(override val meta: FlowMeta) : IREdge(IREdgeType.FLOW, meta)
+class IRFlowEdge(override val meta: FlowMeta) : IREdge(IREdgeType.FLOW, meta)
