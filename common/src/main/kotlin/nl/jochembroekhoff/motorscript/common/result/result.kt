@@ -49,13 +49,35 @@ sealed class Result<out R, out E> {
     }
 
     /**
+     * Run the [handler] if this [Result] is [Ok].
+     * The original [Result] instance is returned and not touched.
+     */
+    inline fun ifOk(handler: (Ok<R, E>) -> Unit): Result<R, E> {
+        if (this is Ok) {
+            handler(this)
+        }
+        return this
+    }
+
+    /**
+     * Run the [handler] if this [Result] is [Error].
+     * The original [Result] instance is returned and not touched.
+     */
+    inline fun ifError(handler: (Error<R, E>) -> Unit): Result<R, E> {
+        if (this is Error) {
+            handler(this)
+        }
+        return this
+    }
+
+    /**
      * Expect the [Result] to be [Ok] and unwrap its value.
      * If not [Ok] (i.e. if [Error]), an [InternalAssertionExecutionException] is thrown with containing the description
      * given in [unexpected] as error text.
      *
-     * @param unexpected Brief description of how the value was unexpectedm, e.g. "invalid string literal".
+     * @param unexpected Brief description of how the value was unexpected, e.g. "invalid string literal".
      */
-    fun expect(unexpected: String): R {
+    fun expect(unexpected: String = "value not present"): R {
         when (this) {
             is Ok -> return value
             is Error -> {

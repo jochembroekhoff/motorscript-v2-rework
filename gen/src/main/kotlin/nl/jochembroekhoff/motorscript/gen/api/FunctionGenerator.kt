@@ -1,7 +1,6 @@
-package nl.jochembroekhoff.motorscript.gen.impl
+package nl.jochembroekhoff.motorscript.gen.api
 
 import nl.jochembroekhoff.motorscript.gen.GenContext
-import nl.jochembroekhoff.motorscript.gen.Generator
 
 /**
  * Base class for function generators.

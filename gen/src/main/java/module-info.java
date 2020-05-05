@@ -1,5 +1,6 @@
 module motorscript.gen {
     exports nl.jochembroekhoff.motorscript.gen;
+    exports nl.jochembroekhoff.motorscript.gen.api;
 
     requires kotlin.stdlib;
     requires kotlin.logging;

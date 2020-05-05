@@ -1,13 +1,11 @@
 package nl.jochembroekhoff.motorscript.common.execution
 
-import mu.KLogging
 import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 import java.util.concurrent.CompletableFuture
 
 abstract class ExecutionUnit<T> {
-    companion object : KLogging()
 
     protected lateinit var ectx: ExecutionContext
 

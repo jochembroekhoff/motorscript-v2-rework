@@ -1,4 +1,4 @@
-package nl.jochembroekhoff.motorscript.gen
+package nl.jochembroekhoff.motorscript.gen.api
 
 /**
  * Base class for MotorScript generators.

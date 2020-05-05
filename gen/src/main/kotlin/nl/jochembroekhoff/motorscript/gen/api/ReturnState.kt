@@ -1,4 +1,4 @@
-package nl.jochembroekhoff.motorscript.gen.impl
+package nl.jochembroekhoff.motorscript.gen.api
 
 sealed class ReturnState
 

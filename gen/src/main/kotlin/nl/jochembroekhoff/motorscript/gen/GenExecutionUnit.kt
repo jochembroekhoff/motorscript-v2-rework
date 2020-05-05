@@ -1,5 +1,6 @@
 package nl.jochembroekhoff.motorscript.gen
 
+import mu.KLogging
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionException
 import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
 import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
@@ -14,6 +15,8 @@ import java.nio.file.Path
 
 class GenExecutionUnit(private val outDir: Path, private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>) :
     ExecutionUnit<Unit>() {
+
+    companion object : KLogging()
 
     private val dataDir = outDir / "data"
 

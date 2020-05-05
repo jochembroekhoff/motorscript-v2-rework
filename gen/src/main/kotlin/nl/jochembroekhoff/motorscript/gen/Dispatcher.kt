@@ -1,9 +1,12 @@
 package nl.jochembroekhoff.motorscript.gen
 
 import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
+import nl.jochembroekhoff.motorscript.common.extensions.collections.whenNotEmpty
 import nl.jochembroekhoff.motorscript.common.extensions.require
 import nl.jochembroekhoff.motorscript.common.ref.NSID
 import nl.jochembroekhoff.motorscript.ir.flow.misc.IREntry
+import nl.jochembroekhoff.motorscript.ir.flow.statement.IRExpressionStatement
+import nl.jochembroekhoff.motorscript.ir.flow.statement.IRReturn
 import nl.jochembroekhoff.motorscript.ir.flow.statement.IRStatementVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IRFlowVertex
@@ -52,24 +55,47 @@ class Dispatcher(private val id: NSID, private val g: IRGraph, private val publi
 
     /* Global generator logic */
 
-    private fun generateStatements(baseGctx: GenContext, stmt: IRStatementVertex) {
+    private fun generateGuards(old: GenContext, guards: Set<Guard>): GenContext {
+        if (guards.isEmpty()) {
+            return old
+        }
+        val new = nest(old)
+        if (Guard.RETURN in guards) {
+            // TODO: This is an example return guard, still have to implement this properly
+            old.currentOutput.content.add("execute if score __did_ret MOS = 0 run function ${published(new.currentOutput.element).toGameRepresentation()}")
+        }
+        return new
+    }
+
+    private fun generateStatement(gctx: GenContext, stmt: IRStatementVertex) {
         // TODO: Figure out which kind of statement this is
-        // TODO: Process possible guards, if they are present, need to generate the guard AND make sure the gctx is
-        //       updated with a possible new nested scope
         // TODO: Branching?
 
+        when (stmt) {
+            is IRExpressionStatement -> {
+
+            }
+            is IRReturn -> {
+                when (stmt.type) {
+                    IRReturn.Type.VOID -> {}
+                    IRReturn.Type.EXPR -> {
+                        TODO()
+                    }
+                }
+            }
+            else -> throw InternalAssertionExecutionException("Unexpected statement: ${stmt::class.simpleName}")
+        }
+    }
+
+    private fun generateStatements(baseGctx: GenContext, stmt: IRStatementVertex) {
         var gctx = baseGctx
         var current: IRStatementVertex? = stmt
         while (current != null) {
-            val guards = computeGuards(current)
-            if (Guard.RETURN in guards) {
-                // TODO: Generate proper guard to output
-                val old = gctx
-                gctx = nest(gctx)
-                old.currentOutput.content.add("execute if score __did_ret MOS = 0 run function ${published(gctx.currentOutput.element).toGameRepresentation()}")
+            computeGuards(current).whenNotEmpty { guards ->
+                gctx = generateGuards(gctx, guards)
             }
 
-            gctx.currentOutput.content.add("say hello")
+            generateStatement(gctx, current)
 
             current = nextStatement(current)
         }

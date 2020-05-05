@@ -24,7 +24,7 @@ class Publisher {
     }
 
     fun published(base: NSID, element: GenElement): NSID {
-        return published.computeIfAbsent(base to element) { _ ->
+        return published.computeIfAbsent(base to element) {
             val suffix =
                 if (element.seq >= 0)
                     "${element.name}-${element.seq}"

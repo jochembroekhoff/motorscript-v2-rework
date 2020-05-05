@@ -16,6 +16,10 @@ data class NSID(val namespace: String, val name: List<String>) {
         return copy(name = name + nameAppend)
     }
 
+    override fun toString(): String {
+        return "NSID(${toInternalRepresentation()})"
+    }
+
     @Serializer(forClass = NSID::class)
     companion object NSIDSerializer : KSerializer<NSID> {
         override val descriptor = PrimitiveDescriptor("NSID", PrimitiveKind.STRING)

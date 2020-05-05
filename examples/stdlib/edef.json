@@ -5,8 +5,8 @@
     "description": "MotorScript Standard Library"
   },
   "functions": {
-    "stdlib": {
-      "stdlib:text/mos": {
+    "minecraft": {
+      "minecraft:text/say": {
         "signature": {
           "params": [
             {
