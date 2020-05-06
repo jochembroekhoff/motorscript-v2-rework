@@ -89,12 +89,12 @@ object BuildManager : KLogging() {
         }.then { (sourceIndex, dependencyLocations) ->
             EDefLoadExecutionUnit(dependencyLocations).executeInContext(executionContext)
                 .mapOk { Pair(sourceIndex, it) }
-        }.then { (sourceIndex, dependencyContainers) ->
+        }.then { (sourceIndex, eDefBundle) ->
             LexParseExecutionUnit(sourceIndex).executeInContext(executionContext)
-                .mapOk { Pair(it, dependencyContainers) }
-        }.then { (lexParseRes, dependencyContainers) ->
+                .mapOk { Pair(it, eDefBundle) }
+        }.then { (lexParseRes, eDefBundle) ->
             FrontExecutionUnit(lexParseRes).executeInContext(executionContext)
-                .mapOk { Pair(it, dependencyContainers) }
+                .mapOk { Pair(it, eDefBundle) }
         }
 
         if (frontRes !is Ok) {
@@ -105,7 +105,7 @@ object BuildManager : KLogging() {
 
         logger.trace { "Generic build execution part completed successfully. Heading over to target-specific parts" }
 
-        val (irContainers, dependencyContainers) = frontRes.value
+        val (irContainers, eDefBundle) = frontRes.value
 
         execution.buildSpec.targets.forEach { target ->
             logger.info { "Processing target $target" }
@@ -118,8 +118,8 @@ object BuildManager : KLogging() {
                 return false
             }
 
-            val result = CheckExecutionUnit(irContainers).executeInContext(executionContext).then { checkRes ->
-                GenExecutionUnit(targetOutputDirectory, checkRes).executeInContext(executionContext)
+            val result = CheckExecutionUnit(irContainers, eDefBundle).executeInContext(executionContext).then { checkRes ->
+                GenExecutionUnit(targetOutputDirectory, checkRes, eDefBundle).executeInContext(executionContext)
             }
 
             result.withError { err ->

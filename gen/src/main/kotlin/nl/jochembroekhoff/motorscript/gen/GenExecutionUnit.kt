@@ -9,12 +9,16 @@ import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.ref.NSID
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.def.DefContainer
+import nl.jochembroekhoff.motorscript.def.EDefBundle
 import nl.jochembroekhoff.motorscript.ir.container.IRDefEntryMeta
 import java.nio.file.Files
 import java.nio.file.Path
 
-class GenExecutionUnit(private val outDir: Path, private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>) :
-    ExecutionUnit<Unit>() {
+class GenExecutionUnit(
+    private val outDir: Path,
+    private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>,
+    private val eDefBundle: EDefBundle
+) : ExecutionUnit<Unit>() {
 
     companion object : KLogging()
 
@@ -34,8 +38,6 @@ class GenExecutionUnit(private val outDir: Path, private val input: List<DefCont
                 "  }\n" +
                 "}\n"
         )
-
-        // TODO: Also need edef containers (probz passed from :check), in order to construct generators for items provided by edefs, need signatures
 
         val futs = input.map { defContainer ->
             ectx.executor.supply {

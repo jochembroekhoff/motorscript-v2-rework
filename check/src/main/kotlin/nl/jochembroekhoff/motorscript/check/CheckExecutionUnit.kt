@@ -7,9 +7,13 @@ import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.def.DefContainer
+import nl.jochembroekhoff.motorscript.def.EDefBundle
 import nl.jochembroekhoff.motorscript.ir.container.IRDefEntryMeta
 
-class CheckExecutionUnit(private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>) : ExecutionUnit<List<DefContainer<PackEntry, IRDefEntryMeta>>>() {
+class CheckExecutionUnit(
+    private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>,
+    private val eDefBundle: EDefBundle
+) : ExecutionUnit<List<DefContainer<PackEntry, IRDefEntryMeta>>>() {
 
     companion object : KLogging()
 

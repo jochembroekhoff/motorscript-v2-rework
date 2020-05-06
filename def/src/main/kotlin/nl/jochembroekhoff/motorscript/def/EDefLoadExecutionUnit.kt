@@ -17,12 +17,11 @@ import java.nio.file.Path
  * Execution unit to load EDef files from dependencies. This ensures that all dependency metadata is loaded and valid to
  * be used. It will report failure when, for example, there are name clashes between dependencies.
  */
-class EDefLoadExecutionUnit(private val dependencyLocations: Map<String, Path>) :
-    ExecutionUnit<Map<String, EDefContainer>>() {
+class EDefLoadExecutionUnit(private val dependencyLocations: Map<String, Path>) : ExecutionUnit<EDefBundle>() {
 
     companion object : KLogging()
 
-    override fun execute(): Result<Map<String, EDefContainer>, Any> {
+    override fun execute(): Result<EDefBundle, Any> {
         logger.debug { "Executing :def:eDefLoad" }
 
         val futs = dependencyLocations.asSequence()
@@ -46,7 +45,8 @@ class EDefLoadExecutionUnit(private val dependencyLocations: Map<String, Path>) 
 
         val parsedDefs = gatherSafe(*futs)
             .mapOk { it.toMap() }
-            .ifError { return it }
+            // FIXME: Would use .ifError { return it } preferably, but the current generic construct doesn't allow that
+            .withError { return Error(it) }
             .expect()
 
         val flatNames = computeFlatNameMap(parsedDefs)
@@ -62,7 +62,7 @@ class EDefLoadExecutionUnit(private val dependencyLocations: Map<String, Path>) 
             }
             .expect()
 
-        return Ok(parsedDefs)
+        return Ok(EDefBundle(parsedDefs, flatNames))
     }
 
     private fun computeFlatNameMap(defs: Map<String, EDefContainer>): Result<Map<NSID, String>, Map<NSID, Set<String>>> {
@@ -75,10 +75,9 @@ class EDefLoadExecutionUnit(private val dependencyLocations: Map<String, Path>) 
                 val seenFor = seenNames[name]
                 if (seenFor != null) {
                     clashes.computeIfAbsent(name) { HashSet() }.also {
-                        if (logger.isDebugEnabled && seenFor !in it) {
+                        if (it.add(seenFor)) {
                             logger.debug { "$name involved in clash was first seen for dependency $seenFor" }
                         }
-                        it.add(seenFor)
                         it.add(dependencyName)
                     }
                 } else {

@@ -1,6 +1,10 @@
 package nl.jochembroekhoff.motorscript.common.messages
 
-data class Message(val base: MessageBase, val explanation: String? = null, val attachables: List<Attachable> = listOf()) {
+data class Message(
+    val base: MessageBase,
+    val explanation: String? = null,
+    val attachables: List<Attachable> = listOf()
+) {
     fun format(): String {
         val builder = StringBuilder()
 
@@ -17,12 +21,12 @@ data class Message(val base: MessageBase, val explanation: String? = null, val a
             builder.append(explanation)
         }
 
-        val attachments = attachables.map(Attachable::toAttachment)
-
-        attachments.forEach { attachment ->
-            builder.append('\n')
-            builder.append(attachment.toMessageString().prependIndent("\t"))
-        }
+        attachables.asSequence()
+            .map { it.toAttachment() }
+            .forEach { attachment ->
+                builder.append('\n')
+                builder.append(attachment.toMessageString().prependIndent("\t"))
+            }
 
         return builder.toString()
     }
