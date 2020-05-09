@@ -1,12 +1,9 @@
 {
   "name": "life",
   "version": "1.0.0",
-  "description": "MotorScript example: Game of Life",
+  "description": "MotorScript tutorial: Game of Life",
   "targets": [{
     "platform": "java",
     "version": "1.16"
-  }],
-  "dependencies": [
-    {"name": "stdlib"}
-  ]
+  }]
 }

@@ -5,6 +5,5 @@
   "targets": [{
     "platform": "java",
     "version": "1.16"
-  }],
-  "dependencies": []
+  }]
 }
