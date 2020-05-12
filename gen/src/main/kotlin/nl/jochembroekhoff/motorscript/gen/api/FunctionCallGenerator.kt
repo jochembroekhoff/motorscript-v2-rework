@@ -5,9 +5,8 @@ import nl.jochembroekhoff.motorscript.gen.GenContext
 /**
  * Base class for function generators.
  */
-abstract class FunctionGenerator : Generator() {
-    abstract fun invoke(
-        gctx: GenContext,
+abstract class FunctionCallGenerator(gctx: GenContext) : Generator(gctx) {
+    abstract fun generate(
         positional: List<GenValue>,
         named: List<Pair<String, GenValue>>
     ): ReturnState

@@ -41,18 +41,24 @@ class GenExecutionUnit(
 
         val futs = input.map { defContainer ->
             ectx.executor.supply {
-                val publisher =
-                    Publisher() // Shared between container items to hopefully also cache some things
+                val publisher = Publisher() // Shared between container items to hopefully also cache some things
                 defContainer.functions.forEach { (id, meta) ->
                     logger.trace { "Generating function $id" }
-                    val dispatcher =
-                        Dispatcher(id, meta.g, publisher)
+                    val dispatcher = Dispatcher(
+                        id,
+                        meta.g,
+                        publisher
+                    )
                     val gctx = GenContext(
                         dispatcher,
-                        GenOutput.createRoot()
+                        GenOutput.createRoot(),
+                        eDefBundle
                     )
-                    dispatcher.generateStatementsStartingFrom(gctx, meta.entry)
-                    dispatcher.collectOutput().forEach { (nsid, content) ->
+                    dispatcher.run {
+                        generateEntryPoint(gctx)
+                        generateStatementsStartingFrom(gctx, meta.entry)
+                        collectOutput()
+                    }.forEach { (nsid, content) ->
                         val file = mcfunctionPathFor(nsid)
                         logger.trace { "Outputting commands to $file" }
                         Files.createDirectories(file.parent)

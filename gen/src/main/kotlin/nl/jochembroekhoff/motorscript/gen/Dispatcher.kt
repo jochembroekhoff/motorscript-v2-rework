@@ -4,6 +4,7 @@ import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutio
 import nl.jochembroekhoff.motorscript.common.extensions.collections.whenNotEmpty
 import nl.jochembroekhoff.motorscript.common.extensions.require
 import nl.jochembroekhoff.motorscript.common.ref.NSID
+import nl.jochembroekhoff.motorscript.gen.impl.stmt.ExpressionStatementGenerator
 import nl.jochembroekhoff.motorscript.ir.flow.misc.IREntry
 import nl.jochembroekhoff.motorscript.ir.flow.statement.IRExpressionStatement
 import nl.jochembroekhoff.motorscript.ir.flow.statement.IRReturn
@@ -73,7 +74,7 @@ class Dispatcher(private val id: NSID, private val g: IRGraph, private val publi
 
         when (stmt) {
             is IRExpressionStatement -> {
-
+                // TODO: ExpressionStatementGenerator(gctx).generate(stmt)
             }
             is IRReturn -> {
                 when (stmt.type) {
@@ -102,6 +103,13 @@ class Dispatcher(private val id: NSID, private val g: IRGraph, private val publi
     }
 
     /* Public interface */
+
+    /**
+     * Generate entry point output.
+     */
+    fun generateEntryPoint(gctx: GenContext) {
+        // Currently, the arguments are not treated specially, but before any actual function body is executed
+    }
 
     /**
      * Start generating starting from the given [entryPoint].
