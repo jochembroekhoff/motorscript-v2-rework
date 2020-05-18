@@ -19,12 +19,12 @@ plugins {
 ext {
     antlr_version = '4.8-1'
     commonsCodec_version = '1.14'
-    jackson_version = '2.10.3'
+    jackson_version = '2.11.0'
     jgrapht_version = '1.4.0'
     slf4j_version = '1.7.30'
     kotlinLogging_version = '1.7.9'
     kotlinxSerializationRuntime_version = '0.20.0'
-    junit5_version = '5.6.1'
+    junit5_version = '5.6.2'
 }
 
 subprojects {
