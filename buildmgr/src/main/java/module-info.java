@@ -12,4 +12,5 @@ module motorscript.buildmgr {
     requires motorscript.front;
     requires motorscript.gen;
     requires motorscript.lexparse;
+    requires motorscript.pluginapi;
 }

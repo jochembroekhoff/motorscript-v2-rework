@@ -5,4 +5,7 @@ dependencies {
     implementation project(':front')
     implementation project(':gen')
     implementation project(':lexparse')
+    implementation project(':pluginapi')
+
+    runtimeOnly project(':defaultplugin')
 }

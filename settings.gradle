@@ -6,11 +6,13 @@ String[] subProjects = [
         'cli',
         'common',
         'def',
+        'defaultplugin',
         'discover',
         'front',
         'gen',
         'ir',
-        'lexparse'
+        'lexparse',
+        'pluginapi'
 ]
 
 include subProjects

@@ -4,6 +4,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import mu.KLogging
+import nl.jochembroekhoff.motorscript.buildmgr.apiimpl.AggregateTagRegistry
 import nl.jochembroekhoff.motorscript.check.CheckExecutionUnit
 import nl.jochembroekhoff.motorscript.common.buildspec.BuildSpec
 import nl.jochembroekhoff.motorscript.common.execution.Execution
@@ -20,6 +21,7 @@ import nl.jochembroekhoff.motorscript.discover.DiscoverExecutionUnit
 import nl.jochembroekhoff.motorscript.front.FrontExecutionUnit
 import nl.jochembroekhoff.motorscript.gen.GenExecutionUnit
 import nl.jochembroekhoff.motorscript.lexparse.LexParseExecutionUnit
+import nl.jochembroekhoff.motorscript.pluginapi.MOSTargetPlugin
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -118,9 +120,37 @@ object BuildManager : KLogging() {
                 return false
             }
 
-            val result = CheckExecutionUnit(irContainers, eDefBundle).executeInContext(executionContext).then { checkRes ->
-                GenExecutionUnit(targetOutputDirectory, checkRes, eDefBundle).executeInContext(executionContext)
+            logger.debug { "Constructing and initializing plug-ins" }
+
+            val pluginInstances = MOSTargetPlugin.construct(target.platform, target.version)
+                .onEach {
+                    it.withError { err ->
+                        // TODO: Dispatch error message to message pipe that a plugin failed to be instantiated,
+                        //       instead of only logging it
+                        logger.error(err) { "Plugin failed to be instantiated" }
+                    }
+                }
+                .filterIsInstance<Ok<MOSTargetPlugin, *>>()
+                .map { it.value }
+                .onEach { plugin ->
+                    plugin.init(target.platform, target.version)
+                }
+                .toSet()
+
+            logger.debug { "Populating registries" }
+
+            val tagRegistry = AggregateTagRegistry()
+
+            pluginInstances.forEach { plugin ->
+                tagRegistry.createInstanceFor(plugin).also {
+                    plugin.registerTags(it)
+                }
             }
+
+            val result =
+                CheckExecutionUnit(irContainers, eDefBundle).executeInContext(executionContext).then { checkRes ->
+                    GenExecutionUnit(targetOutputDirectory, checkRes, eDefBundle).executeInContext(executionContext)
+                }
 
             result.withError { err ->
                 logger.info { "Target $target failed, see message pipe. Result: $result" }
