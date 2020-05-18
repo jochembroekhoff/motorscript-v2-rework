@@ -1,5 +1,0 @@
-test {
-    moduleOptions {
-        runOnClasspath = true
-    }
-}

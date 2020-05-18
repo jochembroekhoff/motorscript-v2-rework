@@ -4,7 +4,7 @@ buildscript {
         jcenter()
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url 'https://jitpack.io' }
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+        //maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-serialization:1.3.72"
@@ -13,11 +13,8 @@ buildscript {
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.72' apply false
-    id 'org.javamodularity.moduleplugin' version '1.5.0' apply false
+    id 'org.javamodularity.moduleplugin' version '1.6.0' apply false
 }
-
-group 'nl.jochembroekhoff.motorscript'
-version '1.0-SNAPSHOT'
 
 ext {
     antlr_version = '4.8-1'
@@ -32,16 +29,23 @@ ext {
 
 subprojects {
     apply plugin: 'java'
+    if (project.name != "cli") {
+        apply plugin: 'java-library'
+    }
     apply plugin: 'org.javamodularity.moduleplugin'
     apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'kotlinx-serialization'
 
+    group 'nl.jochembroekhoff.motorscript'
+    version '1.0-SNAPSHOT'
+
     repositories {
         mavenCentral()
         jcenter()
+        maven { url 'https://dl.bintray.com/kotlin/kotlinx' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url 'https://jitpack.io' }
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+        //maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     }
 
     dependencies {
@@ -59,8 +63,15 @@ subprojects {
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_13
-        targetCompatibility = JavaVersion.VERSION_13
+        sourceCompatibility = JavaVersion.VERSION_14
+        targetCompatibility = JavaVersion.VERSION_14
+
+        modularity.inferModulePath.set(true)
+    }
+
+    compileJava {
+        options.javaModuleVersion.set(project.version)
+        modularity.inferModulePath.set(true)
     }
 
     kotlin {
@@ -77,6 +88,10 @@ subprojects {
 
         filter {
             exclude '**/module-info.class'
+        }
+
+        moduleOptions {
+            runOnClasspath = true
         }
     }
 }

@@ -1,17 +1,18 @@
 plugins {
     id 'application'
-    id 'org.beryx.jlink' version '2.17.2'
+    id 'org.beryx.jlink' version '2.19.0'
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.2.0-dev-7'
+    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.2.1'
     implementation "org.slf4j:slf4j-simple:$slf4j_version"
 
     implementation project(':buildmgr')
 }
 
 application {
-    mainClassName = 'motorscript.cli/nl.jochembroekhoff.motorscript.cli.Main'
+    mainModule.set('motorscript.cli')
+    mainClass.set('nl.jochembroekhoff.motorscript.cli.Main')
 }
 
 jlink {
