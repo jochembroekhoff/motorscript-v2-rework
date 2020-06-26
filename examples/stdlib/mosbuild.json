@@ -4,6 +4,6 @@
   "description": "MotorScript Standard Library",
   "targets": [{
     "platform": "java",
-    "version": "1.16"
+    "version": "1.16.2"
   }]
 }

@@ -1,4 +1,7 @@
 dependencies {
+    implementation "org.jgrapht:jgrapht-core:$jgrapht_version"
+
     implementation project(':def')
     implementation project(':ir')
+    implementation project(':pluginapi')
 }

@@ -6,6 +6,7 @@ import kotlinx.cli.default
 import kotlinx.cli.multiple
 import mu.KLogging
 import nl.jochembroekhoff.motorscript.buildmgr.BuildManager
+import nl.jochembroekhoff.motorscript.buildmgr.BuildStage
 import nl.jochembroekhoff.motorscript.common.messages.Level
 import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
@@ -18,7 +19,9 @@ object Main : KLogging() {
     fun main(args: Array<String>) {
         val timingOverallStart = System.nanoTime()
         var timingCompilationStart = 0L
-        var timingCompilationEnd = 0L
+        var timingCompilationTotal = 0L
+        var timingWriteStart = 0L
+        var timingWriteTotal = 0L
 
         val parser = ArgParser("mosc")
 
@@ -88,7 +91,8 @@ object Main : KLogging() {
                 return
             }
             is Ok -> {
-                when (val execution = BuildManager.createExecution(buildSpec.value, sourceRoot, outputRoot, messagePipe, propMap)) {
+                when (val execution =
+                    BuildManager.createExecution(buildSpec.value, sourceRoot, outputRoot, messagePipe, propMap)) {
                     is Error -> {
                         logger.error { "Failed to create the execution: ${execution.value}" }
                     }
@@ -100,9 +104,35 @@ object Main : KLogging() {
                         val executor = Executors.newFixedThreadPool(actualNumJobs, CustomThreadFactory())
                         logger.debug { "Created thread pool executor of $actualNumJobs thread(s)" }
 
-                        timingCompilationStart = System.nanoTime()
-                        BuildManager.runInExecutor(execution.value, executor)
-                        timingCompilationEnd = System.nanoTime()
+                        BuildManager.runInExecutor(execution.value, executor) { stage ->
+                            when (stage) {
+                                BuildStage.LOAD -> {
+                                    timingCompilationStart = System.nanoTime()
+                                }
+                                BuildStage.TARGET_COMPILE -> {
+                                    // Start compilation timer
+                                    if (timingCompilationStart != 0L) { // check for !=0 in order to include the LOAD stage
+                                        timingCompilationTotal += System.nanoTime() - timingCompilationStart
+                                    }
+                                    timingCompilationStart = System.nanoTime()
+                                }
+                                BuildStage.TARGET_WRITE -> {
+                                    // Stop compilation timer
+                                    timingCompilationTotal += System.nanoTime() - timingCompilationStart
+                                    timingCompilationStart = 0L
+
+                                    // Start write timer
+                                    timingWriteStart = System.nanoTime()
+                                }
+                                BuildStage.TARGET_DONE -> {
+                                    // Stop write timer
+                                    if (timingWriteStart != 0L) { // check for != 0 because WRITE comes after COMPILE
+                                        timingWriteTotal += System.nanoTime() - timingWriteStart
+                                        timingWriteStart = 0L
+                                    }
+                                }
+                            }
+                        }
 
                         executor.shutdown()
                     }
@@ -126,12 +156,20 @@ object Main : KLogging() {
         val timingOverallEnd = System.nanoTime()
 
         val elapsedOverall = (timingOverallEnd - timingOverallStart) / 1e9
-        val elapsedCompilation = (timingCompilationEnd - timingCompilationStart) / 1e9
+        val elapsedCompilation = timingCompilationTotal / 1e9
+        val elapsedWriting = timingWriteTotal / 1e9
+        val elapsedMisc = elapsedOverall - elapsedCompilation - elapsedWriting
 
-        val timingText = if (elapsedCompilation > 0) {
-            String.format("%.3f s overall, %.3f s compilation", elapsedOverall, elapsedCompilation)
+        val timingText = if (elapsedCompilation + elapsedWriting > 0) {
+            String.format(
+                "overall %.3f, compilation %.3f, writing %.3f, misc %.3f",
+                elapsedOverall,
+                elapsedCompilation,
+                elapsedWriting,
+                elapsedMisc
+            )
         } else {
-            String.format("%.3f s overall", elapsedOverall)
+            String.format("overall %.3f", elapsedOverall)
         }
 
         when {

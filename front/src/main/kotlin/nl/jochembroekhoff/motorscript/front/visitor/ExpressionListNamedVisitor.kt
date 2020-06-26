@@ -1,5 +1,6 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
+import nl.jochembroekhoff.motorscript.common.execution.internalAssert
 import nl.jochembroekhoff.motorscript.front.Messages
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 import nl.jochembroekhoff.motorscript.lexparse.MOSParser
@@ -17,10 +18,9 @@ class ExpressionListNamedVisitor(vctx: VisitorContext) : MOSExtendedVisitor<Map<
     override fun visitExpressionListNamed(ctx: MOSParser.ExpressionListNamedContext): Map<String, IRExpressionVertex> {
         val identifierCtxs = ctx.identifier()
         val exprCtxs = ctx.expression()
-        internalAssert(
-            identifierCtxs.size == exprCtxs.size,
+        internalAssert(identifierCtxs.size == exprCtxs.size) {
             "Expected identifiers and expressions to be of equivalent of length"
-        )
+        }
 
         val seenNames: MutableSet<String> = HashSet()
         val duplicates: MutableSet<String> = HashSet()

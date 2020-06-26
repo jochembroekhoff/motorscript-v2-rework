@@ -21,7 +21,7 @@ data class NSID(val namespace: String, val name: List<String>) {
     }
 
     @Serializer(forClass = NSID::class)
-    companion object NSIDSerializer : KSerializer<NSID> {
+    companion object : KSerializer<NSID> {
         override val descriptor = PrimitiveDescriptor("NSID", PrimitiveKind.STRING)
 
         override fun serialize(encoder: Encoder, value: NSID) {
@@ -30,11 +30,24 @@ data class NSID(val namespace: String, val name: List<String>) {
 
         override fun deserialize(decoder: Decoder): NSID {
             val content = decoder.decodeString()
-            val splitColon = content.split(':', limit = 2)
-            if (splitColon.size != 2) {
+            val decoded = of(content)
+            if (decoded.name.isEmpty()) {
                 throw SerializationException("Expected two NSID parts, namespace and name separated by colon.")
             }
-            return NSID(splitColon[0], splitColon[1].split('/', '\\'))
+            return decoded
+        }
+
+        fun of(input: String): NSID {
+            val splitColon = input.split(':', limit = 2)
+            var namespace = splitColon[0]
+            val name =
+                if (splitColon.size == 2) {
+                    splitColon[1]
+                } else {
+                    namespace = ""
+                    splitColon[0]
+                }
+            return NSID(namespace, name.split('/', '\\'))
         }
     }
 }

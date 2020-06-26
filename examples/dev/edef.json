@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "name": "dev",
+    "version": "1.0.0",
+    "description": "MotorScript development project"
+  },
+  "functions": {
+    "dev": {
+      "dev:export/test": {
+        "signature": {
+          "params": [],
+          "returns": "prelude:Void"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+public func test
+{
+    minecraft:text\say("Successfully called external function")
+}

@@ -366,8 +366,7 @@ functionModifiers
     ;
 
 functionModifier
-    : KwBuiltin
-    | KwConst
+    : KwConst
     | KwDefault
     | KwIterator
     | KwPrivate
@@ -774,7 +773,6 @@ KwUse                   : 'use' ;
 KwUser                  : 'user' ;
 
 // Always reserved keywords
-KwBuiltin               : 'builtin' ;
 KwConst                 : 'const' ;
 KwDefer                 : 'defer' ;
 KwElse                  : 'else' ;

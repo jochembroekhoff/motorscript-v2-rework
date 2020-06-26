@@ -3,6 +3,7 @@ package nl.jochembroekhoff.motorscript.front.visitor
 import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
 import nl.jochembroekhoff.motorscript.common.messages.Attachable
 import nl.jochembroekhoff.motorscript.ir.graph.IREdge
+import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 import nl.jochembroekhoff.motorscript.ir.graph.edge.IREdgeType
 import nl.jochembroekhoff.motorscript.ir.graph.IRFlowVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
@@ -15,7 +16,7 @@ import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.FlowMeta
 import nl.jochembroekhoff.motorscript.lexparse.MOSBaseVisitor
 
 abstract class MOSExtendedVisitor<T>(val vctx: VisitorContext) : MOSBaseVisitor<T>() {
-    protected fun IRVertex.gDependOn(v: IRVertex, meta: DependencyMeta = DependencyMeta()): IREdge {
+    protected fun IRVertex.gDependOn(v: IRExpressionVertex, meta: DependencyMeta = DependencyMeta()): IREdge {
         val e = IRDependencyEdge(meta)
         vctx.g.addEdge(v, this, e)
         return e
@@ -37,26 +38,6 @@ abstract class MOSExtendedVisitor<T>(val vctx: VisitorContext) : MOSBaseVisitor<
         return creator().also {
             vctx.g.addVertex(it)
             if (synthetic) vctx.g.markSynthetic(it)
-        }
-    }
-
-    protected inline fun internalAssert(
-        condition: Boolean,
-        description: String,
-        attachmentsProvider: () -> List<Attachable>
-    ) {
-        if (!condition) {
-            throw InternalAssertionExecutionException(description, attachmentsProvider())
-        }
-    }
-
-    protected fun internalAssert(condition: Boolean, description: String? = null) {
-        if (!condition) {
-            if (description == null) {
-                throw InternalAssertionExecutionException()
-            } else {
-                throw InternalAssertionExecutionException(description)
-            }
         }
     }
 

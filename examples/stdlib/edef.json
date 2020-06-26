@@ -4,21 +4,5 @@
     "version": "1.0.0",
     "description": "MotorScript Standard Library"
   },
-  "functions": {
-    "minecraft": {
-      "minecraft:text/say": {
-        "signature": {
-          "params": [
-            {
-              "name": "text",
-              "type": "prelude:String"
-            }
-          ],
-          "returns": "prelude:Void",
-          "builtin": true,
-          "const": true
-        }
-      }
-    }
-  }
+  "functions": {}
 }

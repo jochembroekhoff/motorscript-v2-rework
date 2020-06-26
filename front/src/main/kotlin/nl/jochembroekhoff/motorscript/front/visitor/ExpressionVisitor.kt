@@ -1,6 +1,7 @@
 package nl.jochembroekhoff.motorscript.front.visitor
 
 import nl.jochembroekhoff.motorscript.common.execution.InternalAssertionExecutionException
+import nl.jochembroekhoff.motorscript.common.execution.internalAssert
 import nl.jochembroekhoff.motorscript.common.extensions.collections.whenNotEmpty
 import nl.jochembroekhoff.motorscript.front.FeatureUnimplementedExecutionException
 import nl.jochembroekhoff.motorscript.front.Messages
@@ -69,7 +70,7 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
                 argsCtx.expressionListNamed()?.also { exprListNamedCtx ->
                     ExpressionListNamedVisitor(vctxNext()).visitExpressionListNamed(exprListNamedCtx)
                         .forEach { (name, argV) ->
-                            ivkV.gDependOn(argV, DependencyMeta(slot = Slot(Slot.Category.AGR_NAMED, name = name)))
+                            ivkV.gDependOn(argV, DependencyMeta(slot = Slot(Slot.Category.ARG_NAMED, name = name)))
                         }
                 }
             }
@@ -88,7 +89,7 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
                     it.gDependOn(targetV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
                 }
             }
-            internalAssert(false, "Unexpected postfix operator: ${postfixCtx.text}")
+            internalAssert(false) { "Unexpected postfix operator: ${postfixCtx.text}" }
         }
 
         ctx.prefix()?.also { prefixCtx ->
@@ -108,7 +109,7 @@ class ExpressionVisitor(vctx: VisitorContext) : MOSExtendedVisitor<IRExpressionV
                     it.gDependOn(targetV, DependencyMeta(slot = Slot(Slot.Category.SOURCE)))
                 }
             }
-            internalAssert(false, "Unexpected prefix/unary operator: ${prefixCtx.text}")
+            internalAssert(false) { "Unexpected prefix/unary operator: ${prefixCtx.text}" }
         }
 
         // TODO: infix ops (*, /, %, +, -, &&, ||)

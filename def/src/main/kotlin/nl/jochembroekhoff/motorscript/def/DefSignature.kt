@@ -8,6 +8,5 @@ data class DefSignature(
     val params: List<DefParam>,
     val returns: NSID,
     val iterator: Boolean = false,
-    val const: Boolean = false,
-    val builtin: Boolean = false
+    val const: Boolean = false
 )

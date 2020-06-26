@@ -7,4 +7,7 @@ module motorscript.check {
     requires motorscript.common;
     requires motorscript.def;
     requires motorscript.ir;
+    requires motorscript.pluginapi;
+
+    requires org.jgrapht.core;
 }

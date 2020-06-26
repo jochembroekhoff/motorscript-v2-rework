@@ -71,7 +71,7 @@ The content of `mosbuild.json` should be as follows:
   "description": "MotorScript tutorial: Game of Life",
   "targets": [{
     "platform": "java",
-    "version": "1.16"
+    "version": "1.16.2"
   }]
 }
 ```
@@ -90,7 +90,7 @@ What `description` you give is what will end up in the game data pack menu, beca
 pack.
 
 The content of `targets` is an array that lists to which platforms and which version of that platform you want to
-compile the source code. Currently, only `java` as the platform and `1.16` as its version is supported.
+compile the source code. Currently, only `java` as the platform and `1.16.2` as its version is supported.
 
 There is also a `dependencies` field that you can specify in this `mosbuild.json` file, but we don't need that now.
 

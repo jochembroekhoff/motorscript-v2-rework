@@ -13,7 +13,7 @@ Example contents of a build configuration file:
   "description": "MotorScript example",
   "targets": [{
     "platform": "java",
-    "version": "1.15.2"
+    "version": "1.16.2"
   }]
 }
 ```

@@ -4,4 +4,5 @@ dependencies {
 
     implementation project(':def')
     implementation project(':ir')
+    implementation project(':pluginapi')
 }

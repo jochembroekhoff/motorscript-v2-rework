@@ -9,15 +9,15 @@ import nl.jochembroekhoff.motorscript.common.pack.PackEntry
 import nl.jochembroekhoff.motorscript.common.ref.NSID
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.def.DefContainer
-import nl.jochembroekhoff.motorscript.def.EDefBundle
 import nl.jochembroekhoff.motorscript.ir.container.IRDefEntryMeta
+import nl.jochembroekhoff.motorscript.pluginapi.registration.Registry
 import java.nio.file.Files
 import java.nio.file.Path
 
 class GenExecutionUnit(
     private val outDir: Path,
     private val input: List<DefContainer<PackEntry, IRDefEntryMeta>>,
-    private val eDefBundle: EDefBundle
+    private val registry: Registry
 ) : ExecutionUnit<Unit>() {
 
     companion object : KLogging()
@@ -52,7 +52,7 @@ class GenExecutionUnit(
                     val gctx = GenContext(
                         dispatcher,
                         GenOutput.createRoot(),
-                        eDefBundle
+                        registry
                     )
                     dispatcher.run {
                         generateEntryPoint(gctx)

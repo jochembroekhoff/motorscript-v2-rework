@@ -1,9 +1,9 @@
 package nl.jochembroekhoff.motorscript.gen
 
-import nl.jochembroekhoff.motorscript.def.EDefBundle
+import nl.jochembroekhoff.motorscript.pluginapi.registration.Registry
 
 data class GenContext(
     val dispatcher: Dispatcher,
     val currentOutput: GenOutput,
-    val eDefBundle: EDefBundle
+    val registry: Registry
 )

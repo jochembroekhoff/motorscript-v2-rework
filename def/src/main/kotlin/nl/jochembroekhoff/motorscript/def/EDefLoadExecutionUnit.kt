@@ -51,7 +51,7 @@ class EDefLoadExecutionUnit(private val dependencyLocations: Map<String, Path>) 
 
         val flatNames = computeFlatNameMap(parsedDefs)
             .withError {
-                it.forEach { name, clashCausedBy ->
+                it.forEach { (name, clashCausedBy) ->
                     ectx.execution.messagePipe.dispatch(
                         Messages.nameClash.new(
                             "The name '${name.toInternalRepresentation()}' clashes between te following dependencies: ${clashCausedBy.joinToString(", ")}."
@@ -62,6 +62,12 @@ class EDefLoadExecutionUnit(private val dependencyLocations: Map<String, Path>) 
             }
             .expect()
 
+        if (logger.isTraceEnabled) {
+            flatNames.forEach { (name, dep) ->
+                logger.trace { "Name $name by dependency $dep" }
+            }
+        }
+
         return Ok(EDefBundle(parsedDefs, flatNames))
     }
 
@@ -70,15 +76,15 @@ class EDefLoadExecutionUnit(private val dependencyLocations: Map<String, Path>) 
         val seenNames: MutableMap<NSID, String> = HashMap()
         // Keeps track of which dependencies are involved in a name clash
         val clashes: MutableMap<NSID, MutableSet<String>> = HashMap()
-        defs.forEach { dependencyName, dependencyContent ->
+        defs.forEach { (dependencyName, dependencyContent) ->
             dependencyContent.functions.map { it.first }.forEach { name ->
                 val seenFor = seenNames[name]
                 if (seenFor != null) {
-                    clashes.computeIfAbsent(name) { HashSet() }.also {
-                        if (it.add(seenFor)) {
+                    clashes.computeIfAbsent(name) { HashSet() }.apply {
+                        if (add(seenFor)) {
                             logger.debug { "$name involved in clash was first seen for dependency $seenFor" }
                         }
-                        it.add(dependencyName)
+                        add(dependencyName)
                     }
                 } else {
                     seenNames[name] = dependencyName
