@@ -8,6 +8,7 @@ module motorscript.pluginapi {
     requires kotlin.stdlib.jdk8;
 
     requires motorscript.common;
+    requires motorscript.ir;
 
     uses nl.jochembroekhoff.motorscript.pluginapi.MOSTargetPlugin;
 }

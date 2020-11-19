@@ -47,4 +47,8 @@ class SlotMapping {
     fun byCategory(category: Slot.Category): SlotCollectionHolder {
         return typeToHolder.computeIfAbsent(category) { SlotCollectionHolder() }
     }
+
+    val presentCategories: Set<Slot.Category>
+        // TODO: Does this really need to be a copy, and is EnumSet actually beneficial?
+        get() = typeToHolder.keys.toCollection(EnumSet.noneOf(Slot.Category::class.java))
 }

@@ -5,25 +5,25 @@ import nl.jochembroekhoff.motorscript.common.execution.ExecutionUnit
 import nl.jochembroekhoff.motorscript.common.extensions.executorservice.supply
 import nl.jochembroekhoff.motorscript.common.extensions.sequences.filterErrorValue
 import nl.jochembroekhoff.motorscript.common.pack.PackEntry
+import nl.jochembroekhoff.motorscript.common.ref.NSID
 import nl.jochembroekhoff.motorscript.common.result.Error
 import nl.jochembroekhoff.motorscript.common.result.Ok
 import nl.jochembroekhoff.motorscript.common.result.Result
 import nl.jochembroekhoff.motorscript.common.result.then
 import nl.jochembroekhoff.motorscript.def.DefContainer
 import nl.jochembroekhoff.motorscript.ir.container.IRDefEntryMeta
-import nl.jochembroekhoff.motorscript.ir.expression.IRFullRef
-import nl.jochembroekhoff.motorscript.ir.expression.IRInvoke
-import nl.jochembroekhoff.motorscript.ir.expression.IRPartialRef
+import nl.jochembroekhoff.motorscript.ir.expression.*
 import nl.jochembroekhoff.motorscript.ir.graph.IRExpressionVertex
 import nl.jochembroekhoff.motorscript.ir.graph.IRVertex
 import nl.jochembroekhoff.motorscript.ir.graph.edgemeta.Slot
 import nl.jochembroekhoff.motorscript.pluginapi.check.CheckError
-import nl.jochembroekhoff.motorscript.pluginapi.check.CommonCheckMessages
 import nl.jochembroekhoff.motorscript.pluginapi.check.CheckState
 import nl.jochembroekhoff.motorscript.pluginapi.check.CheckUsageState
+import nl.jochembroekhoff.motorscript.pluginapi.check.CommonCheckMessages
 import nl.jochembroekhoff.motorscript.pluginapi.registration.Registry
 import nl.jochembroekhoff.motorscript.pluginapi.type.CapabilityInvoke
 import nl.jochembroekhoff.motorscript.pluginapi.type.MOSBasicType
+import nl.jochembroekhoff.motorscript.pluginapi.type.TypeRef
 import nl.jochembroekhoff.motorscript.pluginapi.type.checkCapability
 import org.jgrapht.Graphs
 
@@ -56,7 +56,10 @@ class CheckExecutionUnit(
     /**
      * Recursively check dependencies of a given [IRVertex], specified as [vCurrent].
      */
-    private fun checkDependenciesOf(meta: IRDefEntryMeta, vCurrent: IRVertex): Result<CheckState, List<CheckError>> {
+    private fun checkDependenciesOf(
+        meta: IRDefEntryMeta,
+        vCurrent: IRExpressionVertex
+    ): Result<CheckState, List<CheckError>> {
         val dependencies = meta.g.dependenciesOf(vCurrent).toList()
 
         val dependencyCheckResults = dependencies
@@ -77,12 +80,12 @@ class CheckExecutionUnit(
             dependencies.forEach { (e, v) -> add(e, v) }
         }
 
-        if (vCurrent !is IRExpressionVertex) {
-            return Error(listOf())
-        }
-
         // TODO: Move this to special handler classes/methods
         return when (vCurrent) {
+            is IRRef -> {
+                // TODO: Actually resolve
+                Ok(CheckState(TypeRef.Dynamic(NSID.of("unknown:Unknown"))))
+            }
             is IRInvoke -> {
                 val (targetE, targetV) = slots.byCategory(Slot.Category.TARGET).all().single()
                 val argsPositional = slots.byCategory(Slot.Category.ARG_POSITIONAL).byIndex()
@@ -107,14 +110,17 @@ class CheckExecutionUnit(
                     if (it is String) {
                         listOf(CheckError(CommonCheckMessages.unspecifiedError.new(it)))
                     } else {
-                        listOf()
+                        listOf(CheckError(CommonCheckMessages.unspecifiedError.new("Missing: $it")))
                     }
                 }.then { ivk ->
                     val usageState = CheckUsageState(CheckUsageState.Destination.DISCARD)
                     ivk.checkInvoke(usageState, listOf(), listOf()).mapError { listOf(it) }
                 }
             }
-            else -> Error(listOf(CheckError(CommonCheckMessages.unspecifiedError.new("Vertex not implemented."))))
+            is IRLiteral<*> -> {
+                Ok(CheckState(TypeRef.ofLiteral(vCurrent)))
+            }
+            else -> Error(listOf(CheckError(CommonCheckMessages.unspecifiedError.new("Vertex ${vCurrent::class.simpleName} not implemented."))))
         }
     }
 
@@ -125,10 +131,20 @@ class CheckExecutionUnit(
             val firstStatement =
                 Graphs.getOppositeVertex(meta.g, meta.g.outgoingEdgesOf(meta.entry).single(), meta.entry)
 
-            checkDependenciesOf(meta, firstStatement).withError { checkErrors ->
-                checkErrors.forEach { it.dispatchTo(ectx.execution.messagePipe) }
+            // TODO: Iterate over all statements and possible branches and check dependencies for each of them
+
+            val directDependencies = SlotMapping().apply {
+                meta.g.dependenciesOf(firstStatement).forEach { (e, v) -> add(e, v) }
             }
-        }.toList()
+
+            // TODO: Check different dependencies based on which statement we're currently looking at
+
+            directDependencies.byCategory(Slot.Category.SOURCE).all().map { (_, vDep) ->
+                checkDependenciesOf(meta, vDep).withError { checkErrors ->
+                    checkErrors.forEach { it.dispatchTo(ectx.execution.messagePipe) }
+                }
+            }
+        }.flatten().toList()
 
         return !allCheckResults.any { it is Error }
     }
